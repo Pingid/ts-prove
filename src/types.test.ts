@@ -1,14 +1,4 @@
-import {
-  _V,
-  _String,
-  _Number,
-  _Array,
-  _Shape,
-  _Null,
-  _Undefined,
-  _Deconstruct,
-  _Infer,
-} from '../src/types'
+import P, { InferProof } from './types'
 
 type AssertTrue<A, B> = A extends B ? (B extends A ? 'pass' : 'fail') : 'fail'
 type AssertFalse<A, B> = AssertTrue<A, B> extends 'fail' ? 'pass' : 'fail'
@@ -18,14 +8,14 @@ test('Types compile', () => {
   type tests = Tests<
     [
       AssertTrue<'1', '1'>,
-      AssertTrue<_Deconstruct<_String>, string>,
-      AssertTrue<_Deconstruct<_Number>, number>,
-      AssertTrue<_Deconstruct<_Null>, null>,
-      AssertTrue<_Deconstruct<_Undefined>, undefined>,
-      AssertTrue<_Deconstruct<_Array<_Number>>, number[]>,
-      AssertTrue<_Deconstruct<_Shape<{ n: _Number }>>, { n: number }>,
-      AssertTrue<_Deconstruct<_Infer<{ n: string }>>, { n: string }>,
-      AssertTrue<_Deconstruct<_Infer<{ n: string }>>, { n: string }>
+      AssertTrue<InferProof<P.String>, string>,
+      AssertTrue<InferProof<P.Number>, number>,
+      AssertTrue<InferProof<P.Null>, null>,
+      AssertTrue<InferProof<P.Undefined>, undefined>,
+      AssertTrue<InferProof<P.Array<P.Number>>, number[]>,
+      AssertTrue<InferProof<P.Shape<{ n: P.Number }>>, { n: number }>,
+      AssertTrue<InferProof<P.Infer<{ n: string }>>, { n: string }>,
+      AssertTrue<InferProof<P.Infer<{ n: string }>>, { n: string }>
     ]
   >
   expect(true).toBe(true)

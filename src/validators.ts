@@ -17,7 +17,7 @@ export const _equal = <T extends any = any>(): P.Infer<T> => (x) => [null, x as 
 export const _any = <T extends any = any>(): P.Infer<T> => (x) => [null, x as T]
 export const _unknown = <T extends any = unknown>(): P.Infer<T> => (x) => [null, x as T]
 
-export const _or = <T extends _V[]>(x: T): P.Or<T> => (y) => {
+export const _or = <T extends P.Type[]>(x: T): P.Or<T> => (y) => {
   const pass = x.reduce((a, b) => a === true || !(b as any)(y as any)[0], false)
   return pass === true ? [null, y as any] : [`Nothing matched ${toString(y)}`, y]
 }
@@ -25,7 +25,7 @@ export const _or = <T extends _V[]>(x: T): P.Or<T> => (y) => {
 export const _constant = <T extends string>(x: T): P.Infer<T> => (v) =>
   v === x ? [null, x] : [`${x} is not equal to ${toString(v)}`, x]
 
-export const _array = <T extends _V>(x: T): P.Array<T> => (y) =>
+export const _array = <T extends P.Type>(x: T): P.Array<T> => (y) =>
   guard.array(y)
     ? y.reduce<[string | null, any]>(
         (a, b, i) => {
