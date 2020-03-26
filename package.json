@@ -1,11 +1,11 @@
 {
   "name": "ts-prove",
-  "version": "0.0.23-development",
+  "version": "0.0.24-development",
   "description": "",
   "keywords": [],
   "main": "dist/ts-prove.umd.js",
   "module": "dist/ts-prove.es5.js",
-  "typings": "dist/types/src/ts-prove.d.ts",
+  "typings": "dist/types/ts-prove.d.ts",
   "files": [
     "dist"
   ],
