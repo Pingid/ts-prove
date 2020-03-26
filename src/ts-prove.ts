@@ -1,4 +1,4 @@
-import { _V, _Deconstruct } from './types'
+export { default as P } from './types'
 import {
   _string,
   _number,
