@@ -1,4 +1,4 @@
-import { _V, _Eval } from './types'
+import { _V, _Deconstruct } from './types'
 import {
   _string,
   _number,
@@ -9,14 +9,11 @@ import {
   _or,
   _constant,
   _array,
-  _shape
+  _shape,
 } from './validators'
+import { guard } from './utils'
 
-export const validate = <T extends _V>(a: T) => (b: any) => {
-  const error = a.validate(b)
-  if (error === true) return { value: b as _Eval<T> }
-  return { error }
-}
+export const isError = <T>(x: [string, unknown] | [null, T]): x is [null, T] => guard.null(x[0])
 
 export default {
   string: _string,
@@ -36,5 +33,5 @@ export default {
   s: _string,
   n: _number,
   o: _shape,
-  a: _array
+  a: _array,
 }

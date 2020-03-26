@@ -1,48 +1,25 @@
-export enum TV {
-  STRING = 'STRING',
-  NUMBER = 'NUMBER',
-  UNDEFINED = 'UNDEFINED',
-  NULL = 'NULL',
-  UNKNOWN = 'UNKNOWN',
-  CONSTANT = 'CONSTANT',
-  ANY = 'ANY',
-  SHAPE = 'SHAPE',
-  ARRAY = 'ARRAY',
-  EQUAL = 'EQUAL',
-  OR = 'OR'
-}
+type _Error<T extends any> = [string, T]
+type _Success<T extends any> = [null, T]
 
-export type _Construct<T, P = undefined> = {
-  type: T
-  validate: (x: unknown, depth?: number) => string | true
-}
-export type _Deconstruct<T extends _V> = T extends _Construct<infer A, infer B> ? [A, B] : never
+export type _Construct<P extends any, U extends any = unknown> = <T>(
+  x: unknown,
+  depth?: number
+) => _Error<U> | _Success<P>
 
-export type _String = _Construct<TV.STRING, string>
-export type _Number = _Construct<TV.NUMBER, number>
-export type _Null = _Construct<TV.NULL, null>
-export type _Undefined = _Construct<TV.UNDEFINED, undefined>
-export type _Unknown = _Construct<TV.UNKNOWN, unknown>
-export type _Any = _Construct<TV.ANY, any>
+export type _Deconstruct<T extends _V> = T extends _Construct<infer A> ? A : never
 
-export type _Or<T extends _V[]> = _Construct<TV.OR, T>
-export type _Constant<T extends string> = _Construct<TV.CONSTANT, T>
-export type _Array<T extends _V> = _Construct<TV.ARRAY, T>
-export type _Shape<T extends { [x: string]: _V }> = _Construct<TV.SHAPE, T>
+export type _Infer<T extends any> = _Construct<T>
 
-export type _Prim = _Number | _String | _Null | _Undefined | _Unknown | _Any | _Constant<any>
-export type _V = _Prim | _Array<any> | _Shape<any> | _Or<any>
+export type _String = _Construct<string>
+export type _Number = _Construct<number>
+export type _Null = _Construct<null>
+export type _Undefined = _Construct<undefined>
 
-export type _Eval<T extends _V> = T extends _Prim
-  ? _Deconstruct<T>[1]
-  : {
-      shape: { [Key in keyof _Deconstruct<T>[1]]: _Eval<_Deconstruct<T>[1][Key]> }
-      array: _Eval<_Deconstruct<T>[1]>[]
-      or: _Eval<_Deconstruct<T>[1][number]>
-    }[T extends _Shape<any>
-      ? 'shape'
-      : T extends _Array<any>
-      ? 'array'
-      : T extends _Or<any>
-      ? 'or'
-      : never]
+export type _Or<T extends _V[]> = _Construct<_Deconstruct<T[number]>>
+export type _Array<T extends _V> = _Construct<_Deconstruct<T>[], unknown[]>
+export type _Shape<T extends { [x: string]: _V }> = _Construct<
+  { [Key in keyof T]: _Deconstruct<T[Key]> }
+>
+
+export type _Prim = _Number | _String | _Null | _Undefined
+export type _V = _Prim | _Array<any> | _Shape<any> | _Or<any> | _Infer<any>
