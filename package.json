@@ -1,6 +1,6 @@
 {
   "name": "ts-prove",
-  "version": "0.0.4-development",
+  "version": "1.0.0",
   "description": "Lightweight typesafe library for validating types and schemas",
   "keywords": [
     "validation",
