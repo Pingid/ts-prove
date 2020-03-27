@@ -1,4 +1,4 @@
-import { P, Proof, Success, Failure, ValidType } from './types'
+import { P, Prove, Success, Failure, Unwrap } from './types'
 import {
   toString,
   hasKey,
@@ -39,21 +39,36 @@ export const _unknown = <T extends unknown = unknown>(): P.Infer<T> => (x) =>
 export const _equal = <T extends string>(x: T): P.Infer<T> => (v) =>
   result(v === x, `${x} is not equal to ${toString(v)}`, x)
 
-export const _or = <T extends Proof[]>(x: T): P.Or<T> => (y) =>
+/**
+ * Determin that type is on of an array of types and return an intersection type
+ * @param P Prove<T>[]
+ * @return (v: unknown) => Success<T[number]> | Failure
+ */
+export const _or = <T extends Prove[]>(x: T): P.Or<T> => (y) =>
   result(
     x.reduce((a, b) => a === true || !b(y)[0], false) === true,
     `Nothing matched ${toString(y)}`,
     y
   )
 
-export const _array = <T extends Proof>(x: T): P.Array<T> => (y) => {
+/**
+ * Determin that every element in an array is of type
+ * @param P Prove<T>
+ * @return (v: unknown) => Success<T[]> | Failure
+ */
+export const _array = <T extends Prove>(x: T): P.Array<T> => (y) => {
   if (!isArray(y)) return [errorT('array', y), y]
   const result = y.reduce<string[]>((a, b) => (isError(x(b)) ? [...a, x(b)[0] as string] : a), [])
   if (result.length > 0) return [errorJ(result), y]
-  return [null, y as ValidType<T>]
+  return [null, y as Unwrap<T>]
 }
 
-export const _shape = <T extends { [x: string]: Proof }>(shpe: T): P.Shape<T> => (y, depth = 0) => {
+/**
+ * Execute a key value object of validators
+ * @param P { [x: string]: Prove<T> }
+ * @return (v: unknown) => Success<{ [x: string]: T }> | Failure
+ */
+export const _shape = <T extends { [x: string]: Prove }>(shpe: T): P.Shape<T> => (y, depth = 0) => {
   const result = Object.keys(shpe).reduce<[boolean, Record<any, any>]>(
     (all, key) => {
       if (!hasKey(key, y)) return [true, { ...all[1], [key]: '__missing__' }]
