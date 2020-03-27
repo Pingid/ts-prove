@@ -68,11 +68,11 @@ export const _array = <T extends Prove>(x: T): P.Array<T> => (y) => {
  * @param P { [x: string]: Prove<T> }
  * @return (v: unknown) => Success<{ [x: string]: T }> | Failure
  */
-export const _shape = <T extends { [x: string]: Prove }>(shpe: T): P.Shape<T> => (y, depth = 0) => {
+export const _shape = <T extends { [x: string]: Prove }>(shpe: T): P.Shape<T> => (y) => {
   const result = Object.keys(shpe).reduce<[boolean, Record<any, any>]>(
     (all, key) => {
       if (!hasKey(key, y)) return [true, { ...all[1], [key]: '__missing__' }]
-      const res = shpe[key](y[key], depth + 1)
+      const res = shpe[key](y[key])
       if (isError(res)) return [true, { ...all[1], [key]: res[0] }]
       return all
     },

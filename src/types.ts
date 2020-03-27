@@ -8,10 +8,7 @@ export type Proof<T extends any> = Success<T> | Failure<unknown>
 /**
  * Generic wrap and unwrap for validators
  */
-export type Wrap<P extends any, U extends any = any> = (
-  x: U,
-  depth?: number
-) => Failure<U> | Success<P>
+export type Wrap<P extends any, U extends any = any> = (x: U) => Failure<U> | Success<P>
 export type Unwrap<T extends Prove> = T extends Wrap<infer A> ? A : never
 
 /**
