@@ -1,6 +1,6 @@
 {
   "name": "ts-prove",
-  "version": "v0.0.3-development",
+  "version": "0.0.4-development",
   "description": "",
   "keywords": [],
   "main": "dist/ts-prove.umd.js",
