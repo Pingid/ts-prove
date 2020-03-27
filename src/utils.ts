@@ -23,7 +23,7 @@ export const isNull = isEq(null)
 export const isUndefined = isEq(undefined)
 
 export const hasKey = <K extends keyof Record<any, any>>(k: K, x: unknown): x is Record<K, any> =>
-  x && !isUndefined((x as Record<any, any>)[k])
+  !!(x && !isUndefined((x as Record<any, any>)[k]))
 
 /** @internal
  * Returns a string value for any type

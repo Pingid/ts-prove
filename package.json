@@ -1,8 +1,14 @@
 {
   "name": "ts-prove",
   "version": "0.0.4-development",
-  "description": "",
-  "keywords": [],
+  "description": "Lightweight typesafe library for validating types and schemas",
+  "keywords": [
+    "validation",
+    "typescript",
+    "validate",
+    "proof",
+    "schema"
+  ],
   "main": "dist/ts-prove.umd.js",
   "module": "dist/ts-prove.es5.js",
   "typings": "dist/types/ts-prove.d.ts",
@@ -66,12 +72,7 @@
     "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
     "moduleFileExtensions": [
       "ts",
-      "tsx",
       "js"
-    ],
-    "coveragePathIgnorePatterns": [
-      "/node_modules/",
-      "/test/"
     ],
     "coverageThreshold": {
       "global": {
@@ -81,6 +82,9 @@
         "statements": 95
       }
     },
+    "coveragePathIgnorePatterns": [
+      "ts-prove.ts"
+    ],
     "collectCoverageFrom": [
       "src/*.{js,ts}"
     ]

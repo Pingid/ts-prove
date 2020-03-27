@@ -8,6 +8,12 @@ import {
   isFunction,
   isShape,
   isArray,
+  is,
+  isEq,
+  isSymbol,
+  hasKey,
+  errorT,
+  errorJ,
 } from './utils'
 
 const types = [
@@ -19,8 +25,14 @@ const types = [
   ['foobar'],
   true,
   false,
+  Symbol(),
   () => null,
 ]
+
+test('utility funcs', () => {
+  expect(is<string>((x) => typeof x === 'string')('')).toBe(true)
+  expect(isEq('1')('1')).toBe(true)
+})
 
 test('Checking native types', () => {
   expect(isString('string')).toBe(true)
@@ -32,6 +44,9 @@ test('Checking native types', () => {
   expect(isBoolean(false)).toBe(true)
   expect(isBoolean(true)).toBe(true)
   types.filter((x) => x !== true && x !== false).forEach((x) => expect(isBoolean(x)).toBe(false))
+
+  expect(isSymbol(Symbol())).toBe(true)
+  types.filter((x) => typeof x !== 'symbol').forEach((x) => expect(isSymbol(x)).toBe(false))
 
   expect(isNull(null)).toBe(true)
   types.filter((x) => x !== null).forEach((x) => expect(isNull(x)).toBe(false))
@@ -51,10 +66,21 @@ test('Checking native types', () => {
     .forEach((x) => expect(isArray(x)).toBe(false))
 })
 
+test('hasKey', () => {
+  expect(hasKey('one', { one: '' })).toBe(true)
+  types.forEach((x) => expect(hasKey('', x)).toBe(false))
+})
+
 test('toString', () => {
   expect(toString(10)).toBe('10')
   expect(toString(null)).toBe('null')
   expect(toString(undefined)).toBe('undefined')
   expect(toString('10')).toBe('10')
   expect(toString({ one: 'fooobar' })).toBe(`{\n  one: fooobar\n}`)
+})
+
+test('Error output', () => {
+  types.forEach((t) => expect(errorT('type', t).length > 0).toBe(true))
+  expect(errorJ({ one: '' }).length > 0).toBe(true)
+  expect(errorJ([{ one: '' }]).length > 0).toBe(true)
 })

@@ -17,7 +17,7 @@ import {
 /** @internal
  * Validator result wrapper
  */
-const result = <T>(x: boolean, err: string, res: T) =>
+export const result = <T>(x: boolean, err: string, res: T) =>
   x ? ([null, res] as Success<T>) : ([err, res] as Failure<unknown>)
 
 /**
@@ -36,8 +36,8 @@ export const _any = <T extends any = any>(): P.Infer<T> => (x) => result(true, '
 export const _unknown = <T extends unknown = unknown>(): P.Infer<T> => (x) =>
   result(true, '', x as T)
 
-export const _equal = <T extends string>(x: T): P.Infer<T> => (v) =>
-  result(v === x, `${x} is not equal to ${toString(v)}`, x)
+export const _constant = <T extends string>(x: T): P.Infer<T> => (v) =>
+  result(v === x, `${x} is not equal to ${toString(v)}`, v)
 
 /**
  * Determin that type is on of an array of types and return an intersection type
