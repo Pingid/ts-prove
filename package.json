@@ -1,13 +1,20 @@
 {
   "name": "ts-prove",
+<<<<<<< HEAD
   "version": "1.0.1",
   "description": "Lightweight typesafe library for validating types and schemas",
+=======
+  "version": "1.0.0",
+  "description": "Lightweight typesafe library for validating types and decoding ambiguas data",
+>>>>>>> 04ce59a... refactor: add documentation and renaim function
   "keywords": [
     "validation",
     "typescript",
     "validate",
     "proof",
-    "schema"
+    "schema",
+    "decode",
+    "decoder"
   ],
   "main": "dist/ts-prove.umd.js",
   "module": "dist/ts-prove.es5.js",

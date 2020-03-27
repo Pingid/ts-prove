@@ -1,9 +1,13 @@
 import { P, Unwrap } from './types'
 
+/** @internal
+ * Typescript type testing framework
+ */
 type AssertTrue<A, B> = A extends B ? (B extends A ? 'pass' : 'fail') : 'fail'
-type Tests<T extends 'pass'[]> = T
 
 test('Type inferance', () => {
+  type Tests<T extends 'pass'[]> = T
+
   const result: Tests<[
     AssertTrue<'1', '1'>,
     AssertTrue<Unwrap<P.String>, string>,

@@ -1,9 +1,13 @@
 import { Failure } from './types'
 
-/**
- * Curried wrappers for building type guards
+/** @internal
+ * Check if value is of type
  */
 export const is = <T>(fn: (x: unknown) => boolean) => (value: unknown): value is T => fn(value)
+
+/** @internal
+ * Strict equality function
+ */
 export const isEq = <T>(x: T) => is<T>((y) => y === x)
 
 /**
@@ -18,10 +22,8 @@ export const isArray = is<unknown[]>(Array.isArray)
 export const isShape = is<Record<string, any>>(
   (value) => typeof value === 'object' && !isFunction(value) && !isArray(value) && value !== null
 )
-
 export const isNull = isEq(null)
 export const isUndefined = isEq(undefined)
-
 export const hasKey = <K extends keyof Record<any, any>>(k: K, x: unknown): x is Record<K, any> =>
   !!(x && !isUndefined((x as Record<any, any>)[k]))
 
@@ -39,9 +41,15 @@ export const toString = (val: unknown): string =>
     ? 'undefined'
     : (val as any).toString()
 
+/** @internal
+ * Returns a string value for primitive types
+ */
 export const errorT = (expected: string, received: any) =>
   `Expected ${expected} Recieved ${toString(received)}`
 
+/** @internal
+ * Returns a string value for structured types
+ */
 export const errorJ = <T extends Record<string, string> | any[]>(x: T) =>
   JSON.stringify(
     isArray(x) ? x.map((x, i) => `[${i}] ${toString(x)}`) : x,
@@ -51,7 +59,7 @@ export const errorJ = <T extends Record<string, string> | any[]>(x: T) =>
     .replace(/"/gim, '')
     .replace(/\\n/gim, `\n`)
 
-/**
+/** @internal
  * TS Prove type guards
  */
 export const isError = is<Failure<unknown>>((x) => isString(x && (x as any[])[0]))

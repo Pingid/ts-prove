@@ -7,7 +7,7 @@ import {
   _undefined,
   _any,
   _unknown,
-  _or,
+  _oneOf,
   _array,
   _shape,
 } from './validators'
@@ -22,7 +22,7 @@ export default {
   any: _any,
   unknown: _unknown,
 
-  or: _or,
+  oneOf: _oneOf,
   array: _array,
   shape: _shape,
 

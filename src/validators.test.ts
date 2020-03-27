@@ -5,7 +5,7 @@ import {
   _undefined,
   _any,
   _unknown,
-  _or,
+  _oneOf,
   _array,
   _shape,
   _boolean,
@@ -59,8 +59,8 @@ test('Any validation', () => {
 })
 
 test('Or validating', () => {
-  expect(_or([_string(), _number()])('one')).toEqual([null, 'one'])
-  expect(_or([_string(), _number()])(false)).toEqual(['Nothing matched false', false])
+  expect(_oneOf(_string(), _number())('one')).toEqual([null, 'one'])
+  expect(_oneOf(_string(), _number())(false)).toEqual(['Nothing matched false', false])
 })
 
 test('Array validation', () => {

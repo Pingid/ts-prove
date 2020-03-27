@@ -1,4 +1,4 @@
-import { P, Prove, Success, Failure, Unwrap } from './types'
+import { P, Proof, Success, Failure, Unwrap } from './types'
 import {
   toString,
   hasKey,
@@ -44,9 +44,9 @@ export const _constant = <T extends string>(x: T): P.Infer<T> => (v) =>
  * @param P Prove<T>[]
  * @return (v: unknown) => Success<T[number]> | Failure
  */
-export const _or = <T extends Prove[]>(x: T): P.Or<T> => (y) =>
+export const _oneOf = <T extends Proof[]>(...args: T): P.Or<T> => (y) =>
   result(
-    x.reduce((a, b) => a === true || !b(y)[0], false) === true,
+    args.reduce((a, b) => a === true || !b(y)[0], false) === true,
     `Nothing matched ${toString(y)}`,
     y
   )
@@ -56,7 +56,7 @@ export const _or = <T extends Prove[]>(x: T): P.Or<T> => (y) =>
  * @param P Prove<T>
  * @return (v: unknown) => Success<T[]> | Failure
  */
-export const _array = <T extends Prove>(x: T): P.Array<T> => (y) => {
+export const _array = <T extends Proof>(x: T): P.Array<T> => (y) => {
   if (!isArray(y)) return [errorT('array', y), y]
   const result = y.reduce<string[]>((a, b) => (isError(x(b)) ? [...a, x(b)[0] as string] : a), [])
   if (result.length > 0) return [errorJ(result), y]
@@ -68,7 +68,7 @@ export const _array = <T extends Prove>(x: T): P.Array<T> => (y) => {
  * @param P { [x: string]: Prove<T> }
  * @return (v: unknown) => Success<{ [x: string]: T }> | Failure
  */
-export const _shape = <T extends { [x: string]: Prove }>(shpe: T): P.Shape<T> => (y) => {
+export const _shape = <T extends { [x: string]: Proof }>(shpe: T): P.Shape<T> => (y) => {
   const result = Object.keys(shpe).reduce<[boolean, Record<any, any>]>(
     (all, key) => {
       if (!hasKey(key, y)) return [true, { ...all[1], [key]: '__missing__' }]
