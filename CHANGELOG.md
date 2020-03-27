@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/Pingid/ts-prove/compare/v1.0.1...v1.0.2) (2020-03-27)
+
+
+### Bug Fixes
+
+* fix missed merge confict ([6e879a9](https://github.com/Pingid/ts-prove/commit/6e879a93c38f46c6bf4fd9a44205a170a1680649))
+
 ## [1.0.1](https://github.com/Pingid/ts-prove/compare/v1.0.0...v1.0.1) (2020-03-27)
 
 
