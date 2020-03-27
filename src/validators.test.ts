@@ -78,4 +78,5 @@ test('Shape validation', () => {
     errorJ({ one: errorT('number', 'foobar') }),
     { one: 'foobar' },
   ])
+  expect(_shape({ one: _number() })({})).toEqual([errorJ({ one: '__missing__' }), {}])
 })
