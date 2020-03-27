@@ -32,7 +32,13 @@ jobs:
         run: 'yarn install'
 
       - name: 'Run tests'
-        run: 'yarn test'
+        run: 'yarn test:prod'
+
+      - name: 'Build package'
+        run: yarn buid
+
+      - name: 'Deploy docs'
+        run: yarn deploy-docs
 
       - name: Coveralls Parallel
         uses: coverallsapp/github-action@master
