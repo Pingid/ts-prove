@@ -35,7 +35,7 @@ jobs:
         run: 'yarn test:prod'
 
       - name: 'Build package'
-        run: yarn buid
+        run: yarn build
 
       - name: 'Deploy docs'
         run: yarn deploy-docs
