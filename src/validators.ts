@@ -1,58 +1,69 @@
-import { guard, toString } from './utils'
-import P, { InferProof } from './types'
+import { P, Proof, Success, Failure, ValidType } from './types'
+import {
+  toString,
+  hasKey,
+  isString,
+  isNumber,
+  isNull,
+  isUndefined,
+  isBoolean,
+  isSymbol,
+  isArray,
+  isError,
+  errorT,
+  errorJ,
+} from './utils'
 
-export const _string = (): P.String => (x) =>
-  guard.string(x) ? [null, x] : [`Unexpected ${toString(x)}`, x]
+/** @internal
+ * Validator result wrapper
+ */
+const result = <T>(x: boolean, err: string, res: T) =>
+  x ? ([null, res] as Success<T>) : ([err, res] as Failure<unknown>)
 
-export const _number = (): P.Number => (x) =>
-  guard.number(x) ? [null, x] : [`Unexpected ${toString(x)}`, x]
+/**
+ * TS Prove validators
+ */
+export const _string = (): P.String => (x) => result(isString(x), errorT('string', x), x)
+export const _number = (): P.Number => (x) => result(isNumber(x), errorT('number', x), x)
+export const _boolean = (): P.Boolean => (x) => result(isBoolean(x), errorT('boolean', x), x)
+export const _symbol = (): P.Symbol => (x) => result(isSymbol(x), errorT('symbol', x), x)
 
-export const _null = (): P.Null => (x) =>
-  guard.null(x) ? [null, x] : [`Unexpected ${toString(x)}`, x]
-
+export const _null = (): P.Null => (x) => result(isNull(x), errorT('null', x), x)
 export const _undefined = (): P.Undefined => (x) =>
-  guard.undefined(x) ? [null, x] : [`Unexpected ${toString(x)}`, x]
+  result(isUndefined(x), errorT('undefined', x), x)
 
-export const _equal = <T extends any = any>(): P.Infer<T> => (x) => [null, x as T]
-export const _any = <T extends any = any>(): P.Infer<T> => (x) => [null, x as T]
-export const _unknown = <T extends any = unknown>(): P.Infer<T> => (x) => [null, x as T]
+export const _any = <T extends any = any>(): P.Infer<T> => (x) => result(true, '', x as T)
+export const _unknown = <T extends unknown = unknown>(): P.Infer<T> => (x) =>
+  result(true, '', x as T)
 
-export const _or = <T extends P.Type[]>(x: T): P.Or<T> => (y) => {
-  const pass = x.reduce((a, b) => a === true || !(b as any)(y as any)[0], false)
-  return pass === true ? [null, y as any] : [`Nothing matched ${toString(y)}`, y]
+export const _equal = <T extends string>(x: T): P.Infer<T> => (v) =>
+  result(v === x, `${x} is not equal to ${toString(v)}`, x)
+
+export const _or = <T extends Proof[]>(x: T): P.Or<T> => (y) =>
+  result(
+    x.reduce((a, b) => a === true || !b(y)[0], false) === true,
+    `Nothing matched ${toString(y)}`,
+    y
+  )
+
+export const _array = <T extends Proof>(x: T): P.Array<T> => (y) => {
+  if (!isArray(y)) return [errorT('array', y), y]
+  const result = y.reduce<string[]>((a, b) => (isError(x(b)) ? [...a, x(b)[0] as string] : a), [])
+  if (result.length > 0) return [errorJ(result), y]
+  return [null, y as ValidType<T>]
 }
 
-export const _constant = <T extends string>(x: T): P.Infer<T> => (v) =>
-  v === x ? [null, x] : [`${x} is not equal to ${toString(v)}`, x]
+export const _shape = <T extends { [x: string]: Proof }>(shpe: T): P.Shape<T> => (y, depth = 0) => {
+  const result = Object.keys(shpe).reduce<[boolean, Record<any, any>]>(
+    (all, key) => {
+      if (!hasKey(key, y)) return [true, { ...all[1], [key]: '__missing__' }]
+      const res = shpe[key](y[key], depth + 1)
+      if (isError(res)) return [true, { ...all[1], [key]: res[0] }]
+      return all
+    },
+    [false, {}]
+  )
 
-export const _array = <T extends P.Type>(x: T): P.Array<T> => (y) =>
-  guard.array(y)
-    ? y.reduce<[string | null, any]>(
-        (a, b, i) => {
-          const res = (x as any)(b)
-          return [
-            guard.string(res[0])
-              ? (guard.string(a[0]) ? '' : '[') + ` ([${i}] ${res[0]}), `
-              : res[0],
-            [...a[1], b],
-          ]
-        },
-        [null, []]
-      )
-    : [`Expected type array ${toString(y)}`, y]
-
-export const _shape = <T extends { [x: string]: P.Type }>(shpe: T): P.Shape<T> => (
-  y,
-  depth = 0
-) => {
-  const errors = (Object.keys(shpe) as (keyof T)[]).reduce((all, key) => {
-    if (!guard.hasKey(key, y)) {
-      return all + '\n' + `${'\t'.repeat(depth + 1)}[${key}] is not defined`
-    }
-    const res = (shpe as any)[key]((y as Record<typeof key, any>)[key], depth + 1)
-    if (!guard.string(res[0]) || res[0].length < 4) return all
-    return all + '\n' + `${'\t'.repeat(depth + 1)}${key}: ${res}`
-  }, '{')
-  if (guard.string(errors) && errors.length > 4) return [errors + `\n${'\t'.repeat(depth)}}`, y]
-  return [null, y as { [Key in keyof T]: InferProof<T[Key]> }]
+  if (result[0]) return [errorJ(result[1]), y]
+  return [null, y]
 }

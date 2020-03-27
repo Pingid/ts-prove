@@ -1,26 +1,27 @@
-type Error<T extends any> = [string, T]
-type Success<T extends any> = [null, T]
+export type Failure<T extends any> = [string, T]
+export type Success<T extends any> = [null, T]
 
-export type ProveT<P extends any, U extends any = unknown> = <T>(
-  x: unknown,
+export type Validator<P extends any, U extends any = any> = (
+  x: U,
   depth?: number
-) => Error<U> | Success<P>
+) => Failure<U> | Success<P>
 
-export type InferProof<T extends P.Type> = T extends ProveT<infer A> ? A : never
+export type ValidType<T extends Proof> = T extends Validator<infer A> ? A : never
 
-namespace P {
-  export type Infer<T extends any> = ProveT<T>
-  export type String = ProveT<string>
-  export type Number = ProveT<number>
-  export type Null = ProveT<null>
-  export type Undefined = ProveT<undefined>
-  export type Or<T extends Type[]> = ProveT<InferProof<T[number]>>
-  export type Array<T extends Type> = ProveT<InferProof<T>[], unknown[]>
-  export type Shape<T extends { [x: string]: Type }> = ProveT<
-    { [Key in keyof T]: InferProof<T[Key]> }
+export namespace P {
+  export type Infer<T extends any> = Validator<T>
+  export type String = Validator<string>
+  export type Number = Validator<number>
+  export type Boolean = Validator<boolean>
+  export type Symbol = Validator<symbol>
+  export type Null = Validator<null>
+  export type Undefined = Validator<undefined>
+  export type Or<T extends Proof[]> = Validator<ValidType<T[number]>>
+  export type Array<T extends Proof> = Validator<ValidType<T>[]>
+  export type Shape<T extends { [x: string]: Proof }> = Validator<
+    { [Key in keyof T]: ValidType<T[Key]> }
   >
-  export type Primitive = Number | String | Null | Undefined
-  export type Type = Primitive | Array<any> | Shape<any> | Or<any> | Infer<any>
 }
 
-export default P
+export type Primitive = P.Number | P.String | P.Null | P.Undefined
+export type Proof = Primitive | P.Array<any> | P.Shape<any> | P.Or<any> | P.Infer<any>

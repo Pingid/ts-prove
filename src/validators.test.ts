@@ -6,33 +6,54 @@ import {
   _any,
   _unknown,
   _or,
-  _constant,
   _array,
   _shape,
+  _boolean,
 } from './validators'
+import { errorT, errorJ } from './utils'
 
 test('String validation', () => {
   expect(_string()('')).toEqual([null, ''])
-  expect(_string()(10)).toEqual(['Unexpected 10', 10])
+  expect(_string()(10)).toEqual([errorT('string', 10), 10])
 })
 
 test('Number validation', () => {
   expect(_number()(10)).toEqual([null, 10])
-  expect(_number()('10')).toEqual(['Unexpected 10', '10'])
+  expect(_number()('10')).toEqual([errorT('number', '10'), '10'])
 })
 
-test('Constant validation', () => {
-  expect(_constant('foo')('foo')).toEqual([null, 'foo'])
-  expect(_constant('foo')('bar')).toEqual(['foo is not equal to bar', 'foo'])
+test('Number validation', () => {
+  expect(_boolean()(true)).toEqual([null, true])
+  expect(_boolean()(false)).toEqual([null, false])
+  expect(_boolean()('10')).toEqual([errorT('boolean', '10'), '10'])
 })
 
-test('Others validation', () => {
+test('Equals validation', () => {
   expect(_null()(null)).toEqual([null, null])
-  expect(_null()(undefined)).toEqual(['Unexpected undefined', undefined])
+  expect(_null()(undefined)).toEqual([errorT('null', 'undefined'), undefined])
 
   expect(_undefined()(undefined)).toEqual([null, undefined])
-  expect(_undefined()(null)).toEqual(['Unexpected null', null])
+  expect(_undefined()(null)).toEqual([errorT('undefined', null), null])
+})
 
+test('Any validation', () => {
   expect(_any()({ one: '100' })).toEqual([null, { one: '100' }])
   expect(_unknown()({ one: '100' })).toEqual([null, { one: '100' }])
+})
+
+test('Array validation', () => {
+  expect(_array(_string())(10)).toEqual([errorT('array', 10), 10])
+  expect(_array(_string())(['foo', 'bar'])).toEqual([null, ['foo', 'bar']])
+  expect(_array(_string())([10, 11])).toEqual([
+    errorJ([errorT('string', 10), errorT('string', 11)]),
+    [10, 11],
+  ])
+})
+
+test('Shape validation', () => {
+  expect(_shape({ one: _number() })({ one: 10 })).toEqual([null, { one: 10 }])
+  expect(_shape({ one: _number() })({ one: 'foobar' })).toEqual([
+    errorJ({ one: errorT('number', 'foobar') }),
+    { one: 'foobar' },
+  ])
 })

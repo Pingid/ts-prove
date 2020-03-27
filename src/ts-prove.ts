@@ -1,4 +1,5 @@
-export { default as P } from './types'
+import './types'
+import './utils'
 import {
   _string,
   _number,
@@ -7,13 +8,9 @@ import {
   _any,
   _unknown,
   _or,
-  _constant,
   _array,
   _shape,
 } from './validators'
-import { guard } from './utils'
-
-export const isError = <T>(x: [string, unknown] | [null, T]): x is [null, T] => guard.null(x[0])
 
 export default {
   string: _string,
@@ -24,7 +21,6 @@ export default {
 
   any: _any,
   unknown: _unknown,
-  constant: _constant,
 
   or: _or,
   array: _array,
