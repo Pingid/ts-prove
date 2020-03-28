@@ -63,3 +63,5 @@ export const errorJ = <T extends Record<string, string> | any[]>(x: T) =>
  * TS Prove type guards
  */
 export const isError = is<Failure<unknown>>((x) => isString(x && (x as any[])[0]))
+
+export const keys = <T extends Record<any, any>>(x: T) => Object.keys(x) as (keyof T)[]
