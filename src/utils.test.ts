@@ -9,11 +9,10 @@ import {
   isShape,
   isArray,
   is,
-  isEq,
   isSymbol,
   hasKey,
-  errorT,
   errorJ,
+  compose,
 } from './utils'
 
 const types = [
@@ -31,7 +30,6 @@ const types = [
 
 test('utility funcs', () => {
   expect(is<string>((x) => typeof x === 'string')('')).toBe(true)
-  expect(isEq('1')('1')).toBe(true)
 })
 
 test('Checking native types', () => {
@@ -67,8 +65,8 @@ test('Checking native types', () => {
 })
 
 test('hasKey', () => {
-  expect(hasKey('one', { one: '' })).toBe(true)
-  types.forEach((x) => expect(hasKey('', x)).toBe(false))
+  expect(hasKey('one')({ one: '' })).toBe(true)
+  types.forEach((x) => expect(hasKey('')(x)).toBe(false))
 })
 
 test('toString', () => {
@@ -80,7 +78,24 @@ test('toString', () => {
 })
 
 test('Error output', () => {
-  types.forEach((t) => expect(errorT('type', t).length > 0).toBe(true))
   expect(errorJ({ one: '' }).length > 0).toBe(true)
   expect(errorJ([{ one: '' }]).length > 0).toBe(true)
+})
+
+test('Compose', () => {
+  expect(
+    compose(
+      (x) => x + '1',
+      (x) => x + '2'
+    )('')
+  ).toEqual('21')
+
+  expect(
+    Array.from(new Array(10))
+      .map((x, i) => (y: string) => y + i.toString())
+      .reduce(
+        compose,
+        (x) => x
+      )('')
+  ).toBe('9876543210')
 })

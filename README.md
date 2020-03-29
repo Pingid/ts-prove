@@ -1,6 +1,6 @@
 # TS Prove
 
-A composable typesafe library for decoding ambiguas data and validating structured types.
+A lightweight decoding and validation libarary.
 
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Pingid/ts-prove/CI)](https://github.com/Pingid/ts-prove/actions)
 [![Coverage Status](https://coveralls.io/repos/github/Pingid/ts-prove/badge.svg?branch=master)](https://coveralls.io/github/Pingid/ts-prove?branch=master)
@@ -14,38 +14,54 @@ npm install ts-prove
 yarn add ts-prove
 ```
 
-## Api
+## What is this then
 
-The libary provides a list of curried composable validation functions.
+The library provides a set of composable functions for typesafe schema validation and ambiguas data decoding. Along with a standered library of decoders the library also provides readable structered error outputs making it especially usefull for structured message validation such as in HTTP requests.
 
-`p: { string, number, null, undefined, any, unknown, oneOf, array, shape }`
+At its most basic it can be used to validate simple structerd data.
 
 ```ts
-const validateString = p.string()
-validateString('Hello World') // [null, 'Hello World'"]
+import p, { isFailure } from 'ts-prove'
+
+const proveIsPerson = p.shape({ name: p.string, age: p.number })
+
+console.log(proveIsPerson({ name: 'Dug', age: '10' }))
+// ["{ age: expected number }", unknown]
+
+console.log(proveIsPerson({ name: 'Dug', age: 10 }))
+// [null, { name: string, age: number ]
+
+export const createPerson = (req) => {
+  const person = proveIsPerson(req.body)
+  if (isFailure(person)) return req.send({ status: 500, body: person[0] })
+  return db.create(person[1])
+}
 ```
 
-These can be composed into more complex structures ie for validating client requests on a server.
+## Validation
+
+Every proof can receive either a callback `(x => true | string)` or some other value. When provided with a calback it returns another instance of itself using the provided callback to validate later values.
 
 ```ts
-const createPersonPayload = p.shape({
-    name: p.string()
-    friends: p.array(p.oneOf(
-        p.string(),
-        p.shape({ id: p.string() })
-    ))
-})
+import p from 'ts-prove'
 
-const handler = (event, context) => {
-    const [error, payload] = createPersonPayload(JSON.parse(event.body))
+const teenager = p.number
+  (x => x > 10 || 'To young')
+  (x => x < 19 || 'To old)
 
-    // Returns structured errors
-    // ['{ name: "John", friends: [ ([10] { id: __missing__ }) ] }', unknown]
-    if (error !== null) return { statusCode: 500, body error}
+console.log(teenageAge(9))
+// ['To young', unknown]
 
-    // And fully typed payloads
-    // payload: [null, { name: string, friends: (string | { id: string })[] } ]
-}
+console.log(teenageAge(20))
+// ['To old', unknown]
+```
+
+The entire standered proof library is built like this and can be expanded on using the prove function.
+
+```ts
+import { prove } from 'ts-prove'
+
+const string = prove<string>((x) => typeof x === 'string' || 'Expected string')
 ```
 
 This project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification. Contributions of any kind are welcome!

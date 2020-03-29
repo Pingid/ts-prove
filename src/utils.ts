@@ -1,14 +1,12 @@
-import { Failure } from './types'
+export const compose = <A extends any, B extends any, C extends any>(
+  fn2: (x: B) => C,
+  fn1: (x: A) => B
+) => (x: A) => fn2(fn1(x))
 
-/** @internal
- * Check if value is of type
- */
-export const is = <T>(fn: (x: unknown) => boolean) => (value: unknown): value is T => fn(value)
-
-/** @internal
- * Strict equality function
- */
-export const isEq = <T>(x: T) => is<T>((y) => y === x)
+// @internal generic type guard
+export const is = <T>(fn: <T extends unknown = any>(x: T) => boolean) => (
+  value: unknown
+): value is T => fn(value)
 
 /**
  * Generic type guards
@@ -18,18 +16,16 @@ export const isNumber = is<number>((value) => typeof value === 'number')
 export const isBoolean = is<boolean>((value) => value === true || value === false)
 export const isSymbol = is<symbol>((value) => typeof value === 'symbol')
 export const isFunction = is<Function>((value) => typeof value === 'function')
+export const isUndefined = is<undefined>((y) => y === undefined)
+export const isNull = is<null>((y) => y === null)
 export const isArray = is<unknown[]>(Array.isArray)
 export const isShape = is<Record<string, any>>(
   (value) => typeof value === 'object' && !isFunction(value) && !isArray(value) && value !== null
 )
-export const isNull = isEq(null)
-export const isUndefined = isEq(undefined)
-export const hasKey = <K extends keyof Record<any, any>>(k: K, x: unknown): x is Record<K, any> =>
-  !!(x && !isUndefined((x as Record<any, any>)[k]))
+export const hasKey = <K extends keyof Record<any, any>>(k: K) =>
+  is<Record<K, any>>((y) => !!(y && !isUndefined((y as Record<any, any>)[k])))
 
-/** @internal
- * Returns a string value for any type
- */
+// @internal Return readable string output for any type
 export const toString = (val: unknown): string =>
   isString(val)
     ? val
@@ -41,15 +37,7 @@ export const toString = (val: unknown): string =>
     ? 'undefined'
     : (val as any).toString()
 
-/** @internal
- * Returns a string value for primitive types
- */
-export const errorT = (expected: string, received: any) =>
-  `Expected ${expected} Recieved ${toString(received)}`
-
-/** @internal
- * Returns a string value for structured types
- */
+// @internal Convert object to formatted string
 export const errorJ = <T extends Record<string, string> | any[]>(x: T) =>
   JSON.stringify(
     isArray(x) ? x.map((x, i) => `[${i}] ${toString(x)}`) : x,
@@ -59,9 +47,5 @@ export const errorJ = <T extends Record<string, string> | any[]>(x: T) =>
     .replace(/"/gim, '')
     .replace(/\\n/gim, `\n`)
 
-/** @internal
- * TS Prove type guards
- */
-export const isError = is<Failure<unknown>>((x) => isString(x && (x as any[])[0]))
-
+// @internal typed wrapper for Object.keys
 export const keys = <T extends Record<any, any>>(x: T) => Object.keys(x) as (keyof T)[]
