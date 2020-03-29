@@ -14,7 +14,7 @@ npm install ts-prove
 yarn add ts-prove
 ```
 
-## Use
+## use
 
 The library provides a set of composable functions for typesafe schema validation and ambiguas data decoding. Along with a standered library of decoders the library also provides readable structered error outputs making it especially usefull for structured message validation such as in HTTP requests.
 
@@ -25,53 +25,46 @@ import p, { isFailure } from 'ts-prove'
 
 const person = p.shape({ name: p.string, age: p.number })
 
-console.log(person({ name: 'Dug', age: '10' }))
-// ["{ age: expected number }", unknown]
+person({ name: 'Dug', age: '10' }) // ["{ age: expected number }", unknown]
+person({ name: 'Dug', age: 10 }) // [null, { name: string, age: number ]
 
-console.log(person({ name: 'Dug', age: 10 }))
-// [null, { name: string, age: number ]
-
+// This could be used validate post data at an endpoint
 export const createPerson = (req) => {
-  const person = proveIsPerson(req.body)
-  if (isFailure(person)) return req.send({ status: 500, body: person[0] })
-  return db.create(person[1])
+  const data = person(req.body)
+  if (isFailure(data)) return req.send({ status: 500, body: data[0] })
+  return db.createPerson(data[1])
 }
 ```
 
-## Validation
+## validate
 
 Every proof can receive either a callback `(x => true | string)` or some other value. When provided with a calback it returns another instance of itself using the provided callback to validate later values.
 
 ```ts
 import p from 'ts-prove'
 
-const teenage = p.number
-  (x => x > 10 || 'To young')
-  (x => x < 19 || 'To old)
+const teenage = p.number((x) => x > 10 || 'To young')((x) => x < 19 || 'To old')
 
-console.log(teenage(9))
-// ['To young', unknown]
-
-console.log(teenage(20))
-// ['To old', unknown]
+teenage(9) // ['To young', unknown]
+teenage(20) // ['To old', unknown]
 
 // This could then be used in a structured proof
-const teenager = p.shape({ name: p.string, age: teenage });
+const teenager = p.shape({ name: p.string, age: teenage })
 ```
 
-## Custom proofs
+## custom
 
-The entire standered proof library is built like this and can be expanded on using the prove function.
+The entire standered library of proofs is built using the `prove` function which can be used to build your own custom proofs. Because a proof returns a tuple but the isValid callback for a proof requires a function which returns `true | string` there is a helper function `valid` to transform between the two.
 
 ```ts
 import p, { prove, valid } from 'ts-prove'
 
-// Example of p.string implimentation
-const string = prove<string>((x) => typeof x === 'string' || 'Expected string')
-
 // You can compose your own custom types by wrapping a proof with the valid function
 type Person = { name: string; age: number }
 const person = prove<Person>(valid(p.shape({ name: string, age: p.number })))
+
+// Example of p.string implimentation
+const string = prove<string>((x) => typeof x === 'string' || 'Expected string')
 ```
 
 This project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification. Contributions of any kind are welcome!
