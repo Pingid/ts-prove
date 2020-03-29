@@ -1,6 +1,6 @@
 # TS Prove
 
-A lightweight decoding and validation libarary.
+A lightweight decoding and validation library.
 
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Pingid/ts-prove/CI)](https://github.com/Pingid/ts-prove/actions)
 [![Coverage Status](https://coveralls.io/repos/github/Pingid/ts-prove/badge.svg?branch=master)](https://coveralls.io/github/Pingid/ts-prove?branch=master)
@@ -23,12 +23,12 @@ At its most basic it can be used to validate simple structerd data.
 ```ts
 import p, { isFailure } from 'ts-prove'
 
-const proveIsPerson = p.shape({ name: p.string, age: p.number })
+const person = p.shape({ name: p.string, age: p.number })
 
-console.log(proveIsPerson({ name: 'Dug', age: '10' }))
+console.log(person({ name: 'Dug', age: '10' }))
 // ["{ age: expected number }", unknown]
 
-console.log(proveIsPerson({ name: 'Dug', age: 10 }))
+console.log(person({ name: 'Dug', age: 10 }))
 // [null, { name: string, age: number ]
 
 export const createPerson = (req) => {
@@ -45,23 +45,31 @@ Every proof can receive either a callback `(x => true | string)` or some other v
 ```ts
 import p from 'ts-prove'
 
-const teenager = p.number
+const teenage = p.number
   (x => x > 10 || 'To young')
   (x => x < 19 || 'To old)
 
-console.log(teenageAge(9))
+console.log(teenage(9))
 // ['To young', unknown]
 
-console.log(teenageAge(20))
+console.log(teenage(20))
 // ['To old', unknown]
+
+// This could then be used in a structured proof
+const teenager = p.shape({ name: p.string, age: teenage });
 ```
 
 The entire standered proof library is built like this and can be expanded on using the prove function.
 
 ```ts
-import { prove } from 'ts-prove'
+import p, { prove, valid } from 'ts-prove'
 
+// Example of p.string implimentation
 const string = prove<string>((x) => typeof x === 'string' || 'Expected string')
+
+// You can compose your own custom types by wrapping a proof with the valid function
+type Person = { name: string; age: number }
+const person = prove<Person>(valid(p.shape({ name: string, age: p.number })))
 ```
 
 This project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification. Contributions of any kind are welcome!

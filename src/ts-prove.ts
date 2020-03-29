@@ -25,6 +25,7 @@ type Value = number | string | boolean | symbol | null | undefined | Record<any,
 /**
  * Return types
  */
+export type Valid = True | Error
 export type Success<T> = Tuple<null, T>
 export type Failure<T = unknown> = Tuple<Error, T>
 
@@ -43,7 +44,7 @@ export interface Proof<R extends Value> {
 export type ProofOf<T> = T extends Proof<infer D> ? D : never
 
 // Unwrap the internal type of Proof
-export type IsValid<T extends any = unknown> = Function<[T], True | Error>
+export type IsValid<T extends any = unknown> = Function<[T], Valid>
 
 /**
  * Failure Type guard for return value of proof
@@ -76,6 +77,18 @@ const success = <T extends any>(x: T): Success<T> => [null, x]
 // @internal wrap validation check in return type
 const toReturn = <T extends any>(value: T, result: string | true) =>
   isString(result) ? failure(result, value) : success(value)
+
+/**
+ * Takes the return type of
+ * @param { Value | IsValid<T> } valueOrIsValid a value or callback function
+ * @retun
+ *  if valueOrIsValid is not a callback function then @type { Failure | Success<T> }
+ *  otherwise @type { prove }
+ */
+export const isValid = <T extends ReturnType<Proof<any>>>(x: T): Valid =>
+  isProof(x) ? 'recieved function expected value' : isFailure(x) ? x[0] : true
+
+export const valid = <T extends Proof<any>>(prf: T) => (y: Value) => isValid(prf(y))
 
 /**
  * Takes a value

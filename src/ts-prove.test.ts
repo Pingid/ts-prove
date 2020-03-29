@@ -1,4 +1,4 @@
-import p, { prove, isFailure } from './ts-prove'
+import p, { prove, isFailure, valid } from './ts-prove'
 import { isString, isNumber, toString } from './utils'
 
 type Equals<A extends any, B extends A> = A extends B ? 'pass' : never
@@ -19,7 +19,7 @@ test('prove accepts arbitrary number of validation callbacks', () => {
   expect(numberBound(4)).toEqual(['less than 5', 4])
 })
 
-test('key value object proofs structures', () => {
+test('key value objects proof', () => {
   const validShape = p.shape({
     one: prove<string>((x) => isString(x) || 'expected string'),
     two: p.shape({ three: prove<number>((x) => isNumber(x) || 'expected number') }),
@@ -38,7 +38,7 @@ test('key value object proofs structures', () => {
   type Tests = Test<Equals<{ one: string; two: { three: number } }, typeof valid[1]>>
 })
 
-test('proof for array structures', () => {
+test('array proof', () => {
   const validArray = p.array(p.string)
   const valid = validArray(['one', 'two'])
   expect(valid).toEqual([null, ['one', 'two']])
@@ -47,7 +47,7 @@ test('proof for array structures', () => {
   expect(inValid).toEqual(['[ ([2] Expected string) ]', ['one', 'two', 10]])
 })
 
-test('oneOf', () => {
+test('oneOf proof', () => {
   const validate = p.oneOf(p.string, p.number)
   const valid = validate('foobar')
   expect(valid).toEqual([null, 'foobar'])
@@ -57,4 +57,22 @@ test('oneOf', () => {
 
   if (isFailure(valid)) return
   type Tests = Test<Equals<string | number, typeof valid[1]>>
+})
+
+test('valid proof', () => {
+  expect(valid(prove<number>((x) => typeof x === 'number' || 'expected number'))(10)).toEqual(true)
+  expect(valid(prove<number>((x) => typeof x === 'number' || 'expected number'))('foo')).toEqual(
+    'expected number'
+  )
+})
+
+test('custom proof using valid', () => {
+  type Person = { name: string; age: number }
+  const person = prove<Person>(valid(p.shape({ name: p.string, age: p.number })))
+  const result = person({ name: 'John', age: 10 })
+
+  expect(result).toEqual([null, { name: 'John', age: 10 }])
+
+  if (isFailure(result)) return
+  type Tests = Test<Equals<Person, typeof result[1]>>
 })
