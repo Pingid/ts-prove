@@ -7,14 +7,14 @@ A lightweight decoding and validation library.
 [![Dev Dependencies](https://david-dm.org/Pingid/ts-prove/dev-status.svg)](https://david-dm.org/Pingid/ts-prove)
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
-## installing
+## install
 
 ```
 npm install ts-prove
 yarn add ts-prove
 ```
 
-## What is this then
+## Use
 
 The library provides a set of composable functions for typesafe schema validation and ambiguas data decoding. Along with a standered library of decoders the library also provides readable structered error outputs making it especially usefull for structured message validation such as in HTTP requests.
 
@@ -58,6 +58,8 @@ console.log(teenage(20))
 // This could then be used in a structured proof
 const teenager = p.shape({ name: p.string, age: teenage });
 ```
+
+## Custom proofs
 
 The entire standered proof library is built like this and can be expanded on using the prove function.
 
