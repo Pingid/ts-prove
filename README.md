@@ -20,7 +20,7 @@ The library provides a set of composable functions for typesafe schema validatio
 
 ## basic
 
-In the example bellow we construct a 'proof' for the type `Person<{ name: string, age: number }>`. This proof is a callback which accepts the unknown/ambiguas data and returns either `Failure<[string, unknown]>` or `Success<[null, { name: string, age: number }]>`
+In the example bellow we construct a 'proof' for the type `Person<{ name: string, age: number }>`. This proof is a callback which accepts some unknown/ambiguous data and returns either `Failure<[string, unknown]>` or `Success<[null, { name: string, age: number }]>`
 
 ```ts
 import P, { isFailure, ProofType } from 'ts-prove'
@@ -35,7 +35,7 @@ type Person = ProofType<typeof person>
 // { name: string, age: number }
 ```
 
-Here is an example of how you use it on a route handler allowing you safely continue without typescript complaining. This is particularly pleasing because it allows you to both type and validate a request at the same time.
+Here is an example of how this can be used in a route handler to safely infer the type of some POST data.
 
 ```ts
 function addPerson(p: { name: string, age: number }) => ...;
@@ -49,9 +49,7 @@ export const createPerson = (req) => {
 
 ## validation
 
-Every proof can also be provided with a calback which can be used to validate the payload. When you do this the proof returns another instance of itself allowing you to add validation.
-
-The object `P` provides proofs for all javascript primitives as well as `P.shape({ key: Proof })`, `P.arrayOf(Proof)` and, P.oneOf(...args: Proof)`.
+Every proof can also be provided with a callback `(x: unknown) => string | true` which can be used to further validate a payload. When provided with a callback a proof will return another instance of itself allowing you to chain as many callback as you want.
 
 ```ts
 const teenage = P.number((x) => x > 10 || 'To young')((x) => x < 19 || 'To old')
@@ -63,6 +61,8 @@ teenage(13) // [null, number]
 // This could then be used in a structured proof
 const teenager = P.shape({ name: p.string, age: teenage })
 ```
+
+The object `P` provides proofs for all javascript primitives as well as `P.shape({ key: Proof })`, `P.arrayOf(Proof)` and, P.oneOf(...args: Proof)`.
 
 ## advanced
 
@@ -81,5 +81,8 @@ P.or = <T extends Proof[]>(...proofs: T) =>
     )
   )
 ```
+
+## help
+This library is still very young and as a result is in need of helping fingers and minds if you have any thoughts, questions or inspiration feel free to open an issue or make pull request.
 
 This project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification. Contributions of any kind are welcome!
