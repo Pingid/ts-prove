@@ -16,7 +16,7 @@ yarn add ts-prove
 
 ## use
 
-The library provides a set of composable functions for typesafe schema validation and data decoding. The standered library of decoders also provid structured error ouputs which can be harnessed for message validation on for example HTTP requests on a nodejs server.
+The library provides a set of composable functions for typesafe schema validation and data decoding. The standered library of decoders also provid structured error ouputs which can be harnessed for message validation in, for example, serverside request handlers.
 
 ## basic
 
