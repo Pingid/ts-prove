@@ -1,33 +1,6 @@
-import './types'
-import './utils'
-import {
-  _string,
-  _number,
-  _null,
-  _undefined,
-  _any,
-  _unknown,
-  _oneOf,
-  _array,
-  _shape,
-} from './validators'
+export { Valid, Success, Failure, Proof, TypeOfProof as ProofType, Check } from './types'
+export { is, outputString } from './utils'
 
-export default {
-  string: _string,
-  number: _number,
-
-  null: _null,
-  undefined: _undefined,
-
-  any: _any,
-  unknown: _unknown,
-
-  oneOf: _oneOf,
-  array: _array,
-  shape: _shape,
-
-  s: _string,
-  n: _number,
-  o: _shape,
-  a: _array,
-}
+export { isFailure, isSuccess, valid, failure, success } from './prove'
+import prove from './prove'
+export default prove

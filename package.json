@@ -1,6 +1,6 @@
 {
   "name": "ts-prove",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Lightweight typesafe library for validating types and decoding ambiguas data",
   "keywords": [
     "validation",
@@ -29,10 +29,11 @@
   "scripts": {
     "lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
     "prebuild": "rimraf dist",
-    "build": "tsc --module commonjs && rollup -c rollup.config.ts && typedoc --out docs --target es6 --theme minimal --mode file src",
+    "build:docs": "typedoc --out docs --target es6 --theme minimal --excludeNotExported --includeVersion --categorizeByGroup false --excludeExternals --stripInternal --mode file --hideGenerator --exclude 'src/*.test.ts' --externalPattern 'src/utils.ts' --name 'TS Prove' src",
+    "build": "tsc --module commonjs && rollup -c rollup.config.ts && yarn build:docs",
     "start": "rollup -c rollup.config.ts -w",
     "test": "jest --coverage",
-    "test:watch": "jest --coverage --watch",
+    "test:watch": "jest --watch",
     "test:prod": "yarn lint && yarn test --no-cache",
     "deploy-docs": "ts-node tools/gh-pages-publish",
     "report-coverage": "cat ./coverage/lcov.info | coveralls",

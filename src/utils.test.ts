@@ -1,20 +1,4 @@
-import {
-  toString,
-  isString,
-  isUndefined,
-  isNumber,
-  isBoolean,
-  isNull,
-  isFunction,
-  isShape,
-  isArray,
-  is,
-  isEq,
-  isSymbol,
-  hasKey,
-  errorT,
-  errorJ,
-} from './utils'
+import { outputString, is } from './utils'
 
 const types = [
   'string',
@@ -31,56 +15,44 @@ const types = [
 
 test('utility funcs', () => {
   expect(is<string>((x) => typeof x === 'string')('')).toBe(true)
-  expect(isEq('1')('1')).toBe(true)
 })
 
 test('Checking native types', () => {
-  expect(isString('string')).toBe(true)
-  types.filter((x) => x !== 'string').forEach((x) => expect(isString(x)).toBe(false))
+  expect(is.string('string')).toBe(true)
+  types.filter((x) => x !== 'string').forEach((x) => expect(is.string(x)).toBe(false))
 
-  expect(isNumber(10)).toBe(true)
-  types.filter((x) => x !== 10).forEach((x) => expect(isNumber(x)).toBe(false))
+  expect(is.number(10)).toBe(true)
+  types.filter((x) => x !== 10).forEach((x) => expect(is.number(x)).toBe(false))
 
-  expect(isBoolean(false)).toBe(true)
-  expect(isBoolean(true)).toBe(true)
-  types.filter((x) => x !== true && x !== false).forEach((x) => expect(isBoolean(x)).toBe(false))
+  expect(is.boolean(false)).toBe(true)
+  expect(is.boolean(true)).toBe(true)
+  types.filter((x) => x !== true && x !== false).forEach((x) => expect(is.boolean(x)).toBe(false))
 
-  expect(isSymbol(Symbol())).toBe(true)
-  types.filter((x) => typeof x !== 'symbol').forEach((x) => expect(isSymbol(x)).toBe(false))
+  expect(is.symbol(Symbol())).toBe(true)
+  types.filter((x) => typeof x !== 'symbol').forEach((x) => expect(is.symbol(x)).toBe(false))
 
-  expect(isNull(null)).toBe(true)
-  types.filter((x) => x !== null).forEach((x) => expect(isNull(x)).toBe(false))
+  expect(is.null(null)).toBe(true)
+  types.filter((x) => x !== null).forEach((x) => expect(is.null(x)).toBe(false))
 
-  expect(isUndefined(undefined)).toBe(true)
-  types.filter((x) => x !== undefined).forEach((x) => expect(isUndefined(x)).toBe(false))
+  expect(is.undefined(undefined)).toBe(true)
+  types.filter((x) => x !== undefined).forEach((x) => expect(is.undefined(x)).toBe(false))
 
-  expect(isFunction(() => null)).toBe(true)
-  types.filter((x) => typeof x !== 'function').forEach((x) => expect(isFunction(x)).toBe(false))
+  expect(is.function(() => null)).toBe(true)
+  types.filter((x) => typeof x !== 'function').forEach((x) => expect(is.function(x)).toBe(false))
 
-  expect(isShape({})).toBe(true)
-  types.filter((x) => !(x && (x as any).one)).forEach((x) => expect(isShape(x)).toBe(false))
+  expect(is.object({})).toBe(true)
+  types.filter((x) => !(x && (x as any).one)).forEach((x) => expect(is.object(x)).toBe(false))
 
-  expect(isArray([])).toBe(true)
+  expect(is.array([])).toBe(true)
   types
     .filter((x) => !(x && (x as any)[0] === 'foobar'))
-    .forEach((x) => expect(isArray(x)).toBe(false))
+    .forEach((x) => expect(is.array(x)).toBe(false))
 })
 
-test('hasKey', () => {
-  expect(hasKey('one', { one: '' })).toBe(true)
-  types.forEach((x) => expect(hasKey('', x)).toBe(false))
-})
-
-test('toString', () => {
-  expect(toString(10)).toBe('10')
-  expect(toString(null)).toBe('null')
-  expect(toString(undefined)).toBe('undefined')
-  expect(toString('10')).toBe('10')
-  expect(toString({ one: 'fooobar' })).toBe(`{\n  one: fooobar\n}`)
-})
-
-test('Error output', () => {
-  types.forEach((t) => expect(errorT('type', t).length > 0).toBe(true))
-  expect(errorJ({ one: '' }).length > 0).toBe(true)
-  expect(errorJ([{ one: '' }]).length > 0).toBe(true)
+test('outputString', () => {
+  expect(outputString(10)).toBe('10')
+  expect(outputString(null)).toBe('null')
+  expect(outputString(undefined)).toBe('undefined')
+  expect(outputString('10')).toBe('10')
+  expect(outputString({ one: 'fooobar' })).toBe(`{\n  one: fooobar\n}`)
 })
