@@ -11,9 +11,9 @@
     "decode",
     "decoder"
   ],
-  "main": "dist/ts-prove.umd.js",
-  "module": "dist/ts-prove.es5.js",
-  "typings": "dist/types/ts-prove.d.ts",
+  "main": "dist/index.umd.js",
+  "module": "dist/index.es5.js",
+  "typings": "dist/types/index.d.ts",
   "files": [
     "dist"
   ],
@@ -86,7 +86,7 @@
       }
     },
     "coveragePathIgnorePatterns": [
-      "src/ts-prove.ts"
+      "src/index.ts"
     ],
     "collectCoverageFrom": [
       "src/*.{js,ts}"

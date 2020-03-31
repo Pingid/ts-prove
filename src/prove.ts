@@ -1,21 +1,5 @@
-import { Check, Value, Proof, TypeOfProof, Failure, Success, Valid } from './types'
-import { is, outputString } from './utils'
-
-export const isProof = <T extends ReturnType<Proof<any>>>(x: T) =>
-  is<Proof<any>>((y) => !is.array(y))(x)
-
-export const failure = (err: string, x: unknown): Failure => [err, x]
-export const isFailure = is<Failure<any>>((y) => y && is.string((y as Success<any>)[0]))
-
-export const success = <T extends any>(x: T): Success<T> => [null, x]
-export const isSuccess = is<Success<any>>((y) => !!(y && (y as Success<any> | Failure)[0] === null))
-
-export const valid = <T extends Proof<any>>(prf: T) => (y: Value) => isValid(prf(y))
-export const isValid = <T extends ReturnType<Proof<any>>>(x: T): Valid =>
-  isProof(x) ? 'recieved function expected value' : isFailure(x) ? x[0] : true
-
-const toReturn = <T extends any>(value: T, result: Valid) =>
-  is.string(result) ? failure(result, value) : success(value)
+import { Check, Value, Proof, TypeOfProof, Valid } from './types'
+import { is, outputString, isFailure, valid, result } from './utils'
 
 /**
  * Where the magic happens
@@ -26,9 +10,9 @@ const prove = <T extends Check<T> | Value>(
 ): Proof<T> =>
   is<Check<T>>(is.function)(valueOrCheck)
     ? (y) => prove(y, [...trs, valueOrCheck])
-    : (trs.reduce<Failure | Success<T>>(
-        (a, b) => (isFailure(a) ? a : toReturn(valueOrCheck, b(valueOrCheck))),
-        [null, valueOrCheck]
+    : (result(
+        valueOrCheck,
+        trs.reduce<Valid>((a, b) => (a !== true ? a : b(valueOrCheck)), true)
       ) as any)
 
 /**
@@ -40,6 +24,7 @@ prove.boolean = prove<boolean>((x) => is.boolean(x) || 'Expected boolean')
 prove.symbol = prove<symbol>((x) => is.symbol(x) || 'Expected symbol')
 prove.null = prove<null>((x) => is.null(x) || 'Expected null')
 prove.undefined = prove<undefined>((x) => is.undefined(x) || 'Expected undefined')
+prove.array = prove<any[]>((x) => is.array(x) || 'Expected array')
 
 /**
  * Structured key value Proof
@@ -50,15 +35,15 @@ prove.shape = <T extends Record<any, Proof<any>>>(shp: T) =>
       if (!x[b]) return outputString({ ...(a as any)[1], [b]: '__missing__' })
       const res = shp[b](x[b])
       if (isFailure(res)) return outputString({ ...(a as any)[1], [b]: res[0] })
-      return a
+      return true
     }, true)
   )
 
 /**
  * Structured array Proof
  */
-prove.array = <T extends Proof<any>>(arrayOf: T) =>
-  prove<TypeOfProof<T>[]>((y) =>
+prove.arrayOf = <T extends Proof<any>>(arrayOf: T) =>
+  prove<TypeOfProof<T>[]>(valid(prove.array))((y) =>
     y.reduce<Valid>((a, b, i) => {
       if (is.string(a)) return a
       const res = arrayOf(b)
@@ -72,10 +57,21 @@ prove.array = <T extends Proof<any>>(arrayOf: T) =>
  */
 prove.or = <T extends Proof<any>[]>(...proofs: T) =>
   prove<TypeOfProof<T[number]>>((value) =>
-    proofs.reduce<Valid>(
-      (a, prf) => (a === true ? a : isFailure(prf(value)) ? a : true) as any,
-      'value not match any proofs'
-    )
+    proofs.reduce<Valid>((a, prf) => {
+      if (a === true) return true
+      const result = valid(prf)(value)
+      return result === true
+        ? true
+        : (a + (a.length > 0 ? ' or ' : '') + result).replace(/\sExpected/gi, '')
+    }, '')
+  )
+
+/**
+ * Strict equals
+ */
+prove.equals = <T extends any>(value: T) =>
+  prove<T>(
+    (input) => input === value || `${outputString(value)} is not equal to ${outputString(input)}`
   )
 
 export default prove

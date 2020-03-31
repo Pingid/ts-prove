@@ -1,3 +1,5 @@
+import { Proof, Failure, Success, Value, Valid } from './types'
+
 /**
  * Type guard utility with guards set for primitives
  */
@@ -16,7 +18,24 @@ is.object = is<Record<string, any>>(
 )
 
 /**
- * Generate output string for all types
+ * Proof utilities
+ */
+export const failure = (err: string, x: unknown): Failure => [err, x]
+export const isFailure = is<Failure<any>>((y) => y && is.string((y as Success<any>)[0]))
+
+export const success = <T extends any>(x: T): Success<T> => [null, x]
+export const isSuccess = is<Success<any>>((y) => !!(y && (y as Success<any> | Failure)[0] === null))
+
+export const result = <T extends any>(value: T, result: Valid) =>
+  result !== true ? failure(result, value) : success(value)
+
+export const valid = <T extends Proof<any>>(prf: T) => (y: Value) => {
+  if (is.function(y)) return 'recieved function expected value'
+  return prf(y)[0] || true
+}
+
+/**
+ * Generate output string for all javascript types
  */
 export const outputString = (val: any): string => {
   if (is.undefined(val)) return 'undefined'
