@@ -50,9 +50,7 @@ export const createPerson = (req) => {
 Every proof can also be provided with a callback `(x: unknown) => string | true` which can be used to further validate a payload. When provided with a callback a proof will return another instance of itself allowing you to chain as many callbacks as you want.
 
 ```ts
-const teenage = P.number
-  ((x) => x > 10 || 'To young')
-  ((x) => x < 19 || 'To old')
+const teenage = P.number((x) => x > 10 || 'To young')((x) => x < 19 || 'To old')
 
 teenage(9) // ['To young', unknown]
 teenage(20) // ['To old', unknown]
@@ -83,6 +81,7 @@ P.or = <T extends Proof[]>(...proofs: T) =>
 ```
 
 ## help
+
 This library is still very young and needs helping hands and minds. If you have any thoughts, questions or inspiration an issue or pull request is always appreciated.
 
 This project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification. Contributions of any kind are welcome!
