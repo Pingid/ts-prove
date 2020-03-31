@@ -21,14 +21,18 @@ The library provides a set of composable functions for typesafe schema validatio
 In the example below, we construct a 'proof' for the type `Person<{ name: string, age: number }>`. This proof is a callback which accepts some unknown/ambiguous data and returns either `Failure<[string, unknown]>` or `Success<[null, { name: string, age: number }]>`
 
 ```ts
-import P, { isFailure, ProofType } from 'ts-prove'
+import P from 'ts-prove'
 
 const person = P.shape({ name: P.string, age: P.number })
 
 person({ name: 'Dug', age: '10' }) // ["{ age: expected number }", unknown]
 person({ name: 'Dug', age: 10 }) // [null, { name: string, age: number ]
+```
 
-// We can also derive the typescript type;
+We can also derive the typescript type
+```ts
+import { ProofType } from 'ts-prove'
+
 type Person = ProofType<typeof person>
 // { name: string, age: number }
 ```
