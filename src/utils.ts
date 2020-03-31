@@ -30,7 +30,8 @@ export const result = <T extends any>(value: T, result: Valid) =>
   result !== true ? failure(result, value) : success(value)
 
 export const valid = <T extends Proof<any>>(prf: T) => (y: Value) => {
-  if (is.function(y)) return 'recieved function expected value'
+  if (is.function(y))
+    throw new Error(`recieved callback {${y.toString()}} expected none function value`)
   return prf(y)[0] || true
 }
 
@@ -40,8 +41,6 @@ export const valid = <T extends Proof<any>>(prf: T) => (y: Value) => {
 export const outputString = (val: any): string => {
   if (is.undefined(val)) return 'undefined'
   if (is.null(val)) return 'null'
-  if (is.array(val))
-    return val.reduce<string>((a, b, i) => `${a}, ( [${i}]: ${outputString(b)} )`, '')
   if (is.object(val))
     return JSON.stringify(
       val,
