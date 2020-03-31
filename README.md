@@ -73,7 +73,7 @@ The object `P` provides proofs for all javascript primitives as well as `P.shape
 ```ts
 import P, { isFailure, Proof } from 'ts-prove'
 
-P.string = P<string>((x) => typeof x === 'string`]' || 'expected string')
+P.string = P<string>((x) => typeof x === 'string` || 'expected string')
 
 P.or = <T extends Proof[]>(...proofs: T) =>
   P<ProofType<T[number]>>((value) =>
