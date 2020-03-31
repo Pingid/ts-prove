@@ -30,6 +30,7 @@ person({ name: 'Dug', age: 10 }) // [null, { name: string, age: number ]
 ```
 
 We can also derive the typescript type
+
 ```ts
 import { ProofType } from 'ts-prove'
 
@@ -68,24 +69,13 @@ The object `P` provides proofs for all javascript primitives as well as `P.shape
 
 ## advanced
 
-`P` is also a function which can be used to build more complex decoders by allowing you to provide the return value as a type argument. Here is an example of how a couple of library functions are implemented.
+`P` is also a function which can be used to build more complex decoders by allowing you to provide the return value as a type argument. Here is an example of you you could construct a deep equality proof with lodash
 
 ```ts
 import P, { isFailure, Proof } from 'ts-prove'
+import isEqual from 'lodash.isequal'
 
-P.string = P<string>((x) => typeof x === 'string` || 'expected string')
-
-P.or = <T extends Proof[]>(...proofs: T) =>
-  P<ProofType<T[number]>>((value) =>
-    proofs.reduce<Valid>(
-      (a, prf) => (a === true ? a : isFailure(prf(value)) ? a : true) as any,
-      'value did not match a proof'
-    )
-  )
+const equalProof = <T extends any>(type: T) => P<T>((input) => isEqual(type, input) | `Not equal`)
 ```
-
-## help
-
-This library is still very young and needs helping hands and minds. If you have any thoughts, questions or inspiration an issue or pull request is always appreciated.
 
 This project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification. Contributions of any kind are welcome!
