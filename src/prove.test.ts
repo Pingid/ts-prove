@@ -44,9 +44,24 @@ test('primitive proofs', () => {
   expect(P.array(10 as any)).toEqual(fail('array', 10))
 })
 
-test('shape checks for missing key', () => {
+test('shape with optional prop', () => {
+  expect(P.shape({ one: P.string, two: P.optional(P.number) })({} as any)).toEqual(
+    failure(outputString({ one: 'Expected string' }), {})
+  )
+  expect(P.shape({ one: P.string, two: P.optional(P.number) })({ one: 'okay' } as any)).toEqual(
+    success({ one: 'okay' })
+  )
+  expect(
+    P.shape({ one: P.string, two: P.optional(P.number) })({ one: 'one', two: 'three' } as any)
+  ).toEqual(failure(outputString({ two: 'Expected number' }), { one: 'one', two: 'three' }))
+  expect(P.shape({ one: P.string, two: P.optional(P.number) })({ one: 'one', two: 10 })).toEqual(
+    success({ one: 'one', two: 10 })
+  )
+})
+
+test('shape handles missing key', () => {
   expect(P.shape({ one: P.string })({} as any)).toEqual(
-    failure(outputString({ one: '__missing__' }), {})
+    failure(outputString({ one: 'Expected string' }), {})
   )
 })
 

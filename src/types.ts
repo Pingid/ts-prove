@@ -22,8 +22,33 @@ export interface Proof<R extends Value> {
     : Failure | Success<R>
 }
 
+export type OptionalProp<T extends Proof<any>> = { optional: T }
+export type TypeOfOpional<T extends OptionalProp<any>> = T extends OptionalProp<infer D> ? D : never
+
 // Unwrap the internal type of Proof
 export type TypeOfProof<T extends Proof<any>> = T extends Proof<infer D> ? D : never
 
 // Unwrap the internal type of Proof
 export type Check<T extends any = unknown> = Function<[T], Valid>
+
+// Shape Utils
+type FixedKeys<T extends Record<any, Proof<any>>> = {
+  [Key in keyof T]: TypeOfProof<T[Key]> extends OptionalProp<any> ? never : Key
+}[keyof T]
+
+type OptionalKeys<T extends Record<any, Proof<any>>> = {
+  [Key in keyof T]: TypeOfProof<T[Key]> extends OptionalProp<any> ? Key : never
+}[keyof T]
+
+type CombineOptionals<T extends Record<any, Proof<any>>> = {
+  [Key in FixedKeys<T>]: TypeOfProof<T[Key]>
+} &
+  {
+    [Key in OptionalKeys<T>]?: TypeOfProof<T[Key]> extends OptionalProp<infer D>
+      ? TypeOfProof<D>
+      : never
+  }
+
+type Construct<T extends Record<any, any>> = { [Key in keyof T]: T[Key] }
+
+export type Shape<T extends Record<any, Proof<any>>> = Construct<CombineOptionals<T>>

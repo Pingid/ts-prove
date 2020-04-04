@@ -1,4 +1,4 @@
-import { Check, Value, Proof, TypeOfProof, Valid } from './types'
+import { Check, Value, Proof, TypeOfProof, Valid, OptionalProp as Optional, Shape } from './types'
 import { is, outputString, isFailure, valid, result } from './utils'
 
 /**
@@ -30,16 +30,19 @@ prove.array = prove<any[]>((x) => is.array(x) || 'Expected array')
  * Structured key value Proof
  */
 prove.shape = <T extends Record<any, Proof<any>>>(shp: T) =>
-  prove<{ [Key in keyof T]: TypeOfProof<T[Key]> }>((x) =>
+  prove<Shape<T>>((x) =>
     Object.keys(shp).reduce<Valid>((a, b) => {
-      if (!x[b]) return outputString({ ...(a as any)[1], [b]: '__missing__' })
-      const res = shp[b](x[b])
+      if (is.string(a)) return a
+      const res = shp[b]((x as any)[b])
       if (isFailure(res)) return outputString({ ...(a as any)[1], [b]: res[0] })
       return true
     }, true)
   )
 
-/**
+prove.optional = <T extends Proof<any>>(prf: T) =>
+  prove<Optional<T>>((x) => is.undefined(x) || valid(prf)(x))
+
+/**s
  * Structured array Proof
  */
 prove.arrayOf = <T extends Proof<any>>(arrayOf: T) =>

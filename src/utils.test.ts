@@ -41,8 +41,8 @@ test('Checking native types', () => {
   expect(is.function(() => null)).toBe(true)
   types.filter((x) => typeof x !== 'function').forEach((x) => expect(is.function(x)).toBe(false))
 
-  expect(is.object({})).toBe(true)
-  types.filter((x) => !(x && (x as any).one)).forEach((x) => expect(is.object(x)).toBe(false))
+  expect(is.shape({})).toBe(true)
+  types.filter((x) => !(x && (x as any).one)).forEach((x) => expect(is.shape(x)).toBe(false))
 
   expect(is.array([])).toBe(true)
   types

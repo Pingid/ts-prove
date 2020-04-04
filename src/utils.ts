@@ -13,7 +13,7 @@ is.symbol = is<symbol>((value) => typeof value === 'symbol')
 is.boolean = is<boolean>((value) => value === true || value === false)
 is.function = is<Function>((value) => typeof value === 'function')
 is.undefined = is<undefined>((y) => y === undefined)
-is.object = is<Record<string, any>>(
+is.shape = is<Record<string, any>>(
   (value) => typeof value === 'object' && !is.function(value) && !is.array(value) && value !== null
 )
 
@@ -41,7 +41,7 @@ export const valid = <T extends Proof<any>>(prf: T) => (y: Value) => {
 export const outputString = (val: any): string => {
   if (is.undefined(val)) return 'undefined'
   if (is.null(val)) return 'null'
-  if (is.object(val))
+  if (is.shape(val))
     return JSON.stringify(
       val,
       (_key, value) => (is.string(value) ? value.replace(/\n/gim, `\n  `) : value),
