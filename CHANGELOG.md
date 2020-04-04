@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/Pingid/ts-prove/compare/v1.0.2...v1.1.0) (2020-04-04)
+
+
+### Features
+
+* add optional property for shapes ([7b9e62e](https://github.com/Pingid/ts-prove/commit/7b9e62ed1e0bc05ff8ca9b11ad2077a4655e1ee4))
+
 ## [1.0.2](https://github.com/Pingid/ts-prove/compare/v1.0.1...v1.0.2) (2020-03-27)
 
 
