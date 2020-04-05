@@ -37,11 +37,6 @@ jobs:
       - name: 'Build package'
         run: yarn build
 
-      - name: 'Deploy docs'
-        run: yarn deploy-docs
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: 'Report coverage'
         run: 'yarn report-coverage'
         env:

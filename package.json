@@ -3,12 +3,11 @@
   "version": "1.1.1",
   "description": "Lightweight decoding and validation library.",
   "keywords": [
-    "validation",
     "typescript",
+    "validation",
     "validate",
     "proof",
     "schema",
-    "decode",
     "decoder"
   ],
   "main": "dist/index.umd.js",
@@ -29,13 +28,11 @@
   "scripts": {
     "lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
     "prebuild": "rimraf dist",
-    "build:docs": "typedoc --out docs --target es6 --theme minimal --excludeNotExported --includeVersion --categorizeByGroup false --excludeExternals --stripInternal --mode file --hideGenerator --exclude 'src/*.test.ts' --externalPattern 'src/utils.ts' --name 'TS Prove' src",
-    "build": "tsc --module commonjs && rollup -c rollup.config.ts && yarn build:docs",
+    "build": "tsc --module commonjs && rollup -c rollup.config.ts",
     "start": "rollup -c rollup.config.ts -w",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "test:prod": "yarn lint && yarn test --no-cache",
-    "deploy-docs": "ts-node tools/gh-pages-publish",
     "report-coverage": "cat ./coverage/lcov.info | coveralls",
     "commit": "git-cz",
     "semantic-release": "semantic-release",
@@ -138,7 +135,6 @@
     "tslint": "^6.1.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-config-standard": "^9.0.0",
-    "typedoc": "^0.17.3",
     "typescript": "^3.8.3"
   }
 }
