@@ -88,7 +88,7 @@ P.string = P<string>((x) => typeof x === 'string' || 'Expected string')
 Here is a generic proof which does a deep equal comparison using lodash.isequal function.
 
 ```ts
-import P, { isFailure, Proof } from 'ts-prove'
+import P from 'ts-prove'
 import isEqual from 'lodash.isequal'
 
 const equalProof = <T extends any>(type: T) => P<T>((input) => isEqual(type, input) | `Not equal`)
