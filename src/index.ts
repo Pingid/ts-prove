@@ -1,5 +1,5 @@
 export { Valid, Success, Failure, Proof, TypeOfProof, Check } from './types'
-export { is, outputString, isFailure, isSuccess, valid, failure, success } from './utils'
+export { is, outputString, isProven, check, failure, success } from './utils'
 
 import prove from './prove'
 export default prove
