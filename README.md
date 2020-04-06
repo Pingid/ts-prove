@@ -126,7 +126,8 @@ _Two utility proofs that always match but that resolve to different types._
   - Accepts a proof T as an argument and returns a proof for arrays containing type T.
 
   - ```ts
-    const names = P.array(P.string)
+    P.array(P.string)
+    // string[]
     ```
 
 * **shape:** <**T** _extends { [x: string]: Proof\<any\> }_>(proof: **T**): **Proof**<_{ [Key in keyof **T**]: ProofType<**T[Key]**> }_>
@@ -134,7 +135,8 @@ _Two utility proofs that always match but that resolve to different types._
   - Accepts a key value object where every value is a proof and returns a proof for objects of that shape.
 
   - ```ts
-    const shapeProof = P.shape({ name: P.string, age: P.number })
+    P.shape({ name: P.string, age: P.number })
+    // { name: string, age: number }
     ```
 
 * **optional:** <**T** _extends Proof\<any\>_>(proof: **T**): **Proof**<\*ProofType\<**T**\> | **undefined\***>
@@ -142,7 +144,7 @@ _Two utility proofs that always match but that resolve to different types._
   - For use in shapes when you want the return type to indicate and optional value. Optional accepts a proof as an argument and returns union with undefined. For any other cases use **or**.
 
   - ```ts
-    const person = P.shape({ name: P.string, age: P.optional(P.number) })
+    P.shape({ name: P.string, age: P.optional(P.number) })
     // { name: string, age?: number }
     ```
 
@@ -151,7 +153,7 @@ _Two utility proofs that always match but that resolve to different types._
   - Accepts any number of proofs as arguments and returns a union of thoses proofs if any one of them match a given value.
 
   - ```ts
-    const someUnion = P.or(P.string, P.number, P.symbol)
+    P.or(P.string, P.number, P.symbol)
     // string | number | symbol
     ```
 
