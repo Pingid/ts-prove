@@ -20,20 +20,23 @@ is.shape = is<Record<string, any>>(
 /**
  * Proof utilities
  */
-export const failure = (err: string, x: unknown): Failure => [err, x]
-export const isFailure = is<Failure<any>>((y) => y && is.string((y as Success<any>)[0]))
-
 export const success = <T extends any>(x: T): Success<T> => [null, x]
-export const isSuccess = is<Success<any>>((y) => !!(y && (y as Success<any> | Failure)[0] === null))
+export const failure = (err: string, x: unknown): Failure => [err, x]
 
-export const result = <T extends any>(value: T, result: Valid) =>
-  result !== true ? failure(result, value) : success(value)
+export const hasResolved = <T extends any>(x: ReturnType<Proof<T>>): x is Success<T> | Failure =>
+  is<Success<T>>((y) => !!(is.array(y) && (is.null(y[0]) || is.string(y[0]))))(x)
 
-export const valid = <T extends Proof<any>>(prf: T) => (y: Value) => {
+export const isProven = <T extends any>(x: ReturnType<Proof<T>>): x is Success<T> =>
+  is<Success<T>>((y) => !!(is.array(y) && y[0] === null))(x)
+
+export const check = <T extends Proof<any>>(prf: T) => (y: Value) => {
   if (is.function(y))
     throw new Error(`recieved callback {${y.toString()}} expected none function value`)
   return prf(y)[0] || true
 }
+
+export const result = <T extends any>(value: T, result: Valid) =>
+  result !== true ? failure(result, value) : success(value)
 
 /**
  * Generate output string for all javascript types

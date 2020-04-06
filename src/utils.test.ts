@@ -1,4 +1,4 @@
-import { outputString, is, isSuccess, failure, success, isFailure, valid } from './utils'
+import { outputString, is, isProven, failure, success, check } from './utils'
 import prove from './prove'
 
 const types = [
@@ -58,16 +58,13 @@ test('outputString', () => {
   expect(outputString({ one: 'fooobar' })).toBe(`{\n  one: fooobar\n}`)
 })
 
-test('isSuccess && isFailure', () => {
-  expect(isSuccess(failure('', null))).toEqual(false)
-  expect(isSuccess(success(''))).toEqual(true)
-
-  expect(isFailure(failure('', null))).toEqual(true)
-  expect(isFailure(success(''))).toEqual(false)
+test('isProven', () => {
+  expect(isProven(failure('', null))).toEqual(false)
+  expect(isProven(success(''))).toEqual(true)
 })
 
-test('valid', () => {
-  expect(valid(prove((x) => true))(null)).toEqual(true)
-  expect(valid(prove((x) => 'error'))(null)).toEqual('error')
-  expect(() => valid(prove((x) => 'error'))(() => null)).toThrow()
+test('check', () => {
+  expect(check(prove((x) => true))(null)).toEqual(true)
+  expect(check(prove((x) => 'error'))(null)).toEqual('error')
+  expect(() => check(prove((x) => 'error'))(() => null)).toThrow()
 })

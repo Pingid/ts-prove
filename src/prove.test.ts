@@ -39,9 +39,6 @@ test('primitive proofs', () => {
 
   expect(P.undefined(undefined)).toEqual(success(undefined))
   expect(P.undefined(10 as any)).toEqual(fail('undefined', 10))
-
-  expect(P.array([1, 2, 3])).toEqual(success([1, 2, 3]))
-  expect(P.array(10 as any)).toEqual(fail('array', 10))
 })
 
 test('shape with optional prop', () => {
@@ -75,21 +72,21 @@ test('shape accepts key value object of proofs and returns first error', () => {
   )
 })
 
-test('arrayOf validates all items in array', () => {
-  expect(P.arrayOf(P.string)(['foo', 'bar'])).toEqual(success(['foo', 'bar']))
-  expect(P.arrayOf(P.string)(['foo', 'bar', 12 as any])).toEqual(
+test('array validates all items in array', () => {
+  expect(P.array(P.string)(['foo', 'bar'])).toEqual(success(['foo', 'bar']))
+  expect(P.array(P.string)(['foo', 'bar', 12 as any])).toEqual(
     failure('[ ([2] Expected string) ]', ['foo', 'bar', 12])
   )
 })
 
-test('arrayOf should return only first error', () => {
-  expect(P.arrayOf(P.string)(['foo', 'bar', 12 as any, 13 as any])).toEqual(
+test('array should return only first error', () => {
+  expect(P.array(P.string)(['foo', 'bar', 12 as any, 13 as any])).toEqual(
     failure('[ ([2] Expected string) ]', ['foo', 'bar', 12, 13])
   )
 })
 
-test('arrayOf should first check for array type', () => {
-  expect(P.arrayOf(P.string)({ one: 'foo' } as any)).toEqual(
+test('array should first check for array type', () => {
+  expect(P.array(P.string)({ one: 'foo' } as any)).toEqual(
     failure('Expected array', { one: 'foo' })
   )
 })

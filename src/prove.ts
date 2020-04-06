@@ -1,5 +1,5 @@
 import { Check, Value, Proof, TypeOfProof, Valid, OptionalProp as Optional, Shape } from './types'
-import { is, outputString, isFailure, valid, result } from './utils'
+import { is, outputString, hasResolved, isProven, check, result } from './utils'
 
 /**
  * Where the magic happens
@@ -24,7 +24,6 @@ prove.boolean = prove<boolean>((x) => is.boolean(x) || 'Expected boolean')
 prove.symbol = prove<symbol>((x) => is.symbol(x) || 'Expected symbol')
 prove.null = prove<null>((x) => is.null(x) || 'Expected null')
 prove.undefined = prove<undefined>((x) => is.undefined(x) || 'Expected undefined')
-prove.array = prove<any[]>((x) => is.array(x) || 'Expected array')
 
 /**
  * Structured key value Proof
@@ -34,23 +33,23 @@ prove.shape = <T extends Record<any, Proof<any>>>(shp: T) =>
     Object.keys(shp).reduce<Valid>((a, b) => {
       if (is.string(a)) return a
       const res = shp[b]((x as any)[b])
-      if (isFailure(res)) return outputString({ ...(a as any)[1], [b]: res[0] })
+      if (hasResolved(res) && !isProven(res)) return outputString({ ...(a as any)[1], [b]: res[0] })
       return true
     }, true)
   )
 
 prove.optional = <T extends Proof<any>>(prf: T) =>
-  prove<Optional<T>>((x) => is.undefined(x) || valid(prf)(x))
+  prove<Optional<T>>((x) => is.undefined(x) || check(prf)(x))
 
 /**s
  * Structured array Proof
  */
-prove.arrayOf = <T extends Proof<any>>(arrayOf: T) =>
-  prove<TypeOfProof<T>[]>(valid(prove.array))((y) =>
+prove.array = <T extends Proof<any>>(arrayOf: T) =>
+  prove<TypeOfProof<T>[]>((x) => is.array(x) || 'Expected array')((y) =>
     y.reduce<Valid>((a, b, i) => {
       if (is.string(a)) return a
       const res = arrayOf(b)
-      if (isFailure(res)) return `[ ([${i}] ${res[0]}) ]`
+      if (hasResolved(res) && !isProven(res)) return `[ ([${i}] ${res[0]}) ]`
       return a
     }, true)
   )
@@ -62,7 +61,7 @@ prove.or = <T extends Proof<any>[]>(...proofs: T) =>
   prove<TypeOfProof<T[number]>>((value) =>
     proofs.reduce<Valid>((a, prf) => {
       if (a === true) return true
-      const result = valid(prf)(value)
+      const result = check(prf)(value)
       return result === true
         ? true
         : (a + (a.length > 0 ? ' or ' : '') + result).replace(/\sExpected/gi, '')

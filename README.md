@@ -8,7 +8,7 @@ A lightweight decoding and validation library.
 
 ## About
 
-This library provides a set of composable functions for typesafe schema validation and data decoding. The decoders or 'proofs' that are provided by the library also return structured error outputs which can be harnessed for message validation in, for example, serverside request handlers.
+This library provides a set of composable functions for typesafe schema validation and data decoding. Because typescript is staticaly typed this can be particularly useful for message validation in, for example,  a HTTP route handler by ensuring that the correct data is available.
 
 ## Install
 
@@ -21,36 +21,36 @@ yarn add ts-prove
 
 ## Documentation
 
-- [Example](##Example)
-- [Data Validation](##Data Validation)
-- [Custom Proofs](##Custom Proofs)
-- [API](##API)
+- [Example](#Example)
+- [Data Validation](#Data Validation)
+- [Custom Proofs](#Custom Proofs)
+- [API](#API)
 
 ## Example
 
-In the example below, we construct a *proof* for the type `Person<{ name: string, age: number }>`. This proof is a callback which accepts some unknown data and returns either `Failure<[string, unknown]>` or `Success<[null, { name: string, age: number }]>`
+In the example below, we construct a *proof* for the type `Person<{ name: { first: string, last: string }, age: number }>`. This proof is a callback which accepts some unknown data and returns either `Failure<[string, unknown]>` or `Success<[null, Person]>`
 
 ```ts
 import P, { TypeOfProof } from 'ts-prove'
 
-const nameProof = P.shape({
+const proveName = P.shape({
   first: P.string,
   last: P.optional(P.string)
 })
 
-const personProof = P.shape({
-  name: nameProof,
+const provePerson = P.shape({
+  name: proveName,
   age: P.number
 })
 
-type Person = TypeOfProof<typeof personProof> 
+type Person = TypeOfProof<typeof provePerson> 
 // { name: { first: string, last?: string }, age: number }
 
-personProof({ name: { first: 'Bob' }, age: 'Incorect string value' }) // [string, unknown]
-personProof({ name: { first: 'Bob' }, age: 10 }) // [null, Person]
+provePerson({ name: { first: 'Bob' }, age: 'Incorect string value' }) // [string, unknown]
+provePerson({ name: { first: 'Bob' }, age: 10 }) // [null, Person]
 ```
 
-Here is an example of how this can be used in a route handler to safely set the type of some POST data.
+This could then be used to validate a payload.
 
 ```ts
 export const createPerson = (req) => {
@@ -79,13 +79,13 @@ const teenager = P.shape({ name: nameProof, age: teenage })
 
 ## Custom Proofs
 
-All the proofs provided by this library are constructed using the function `P<ValueType>()`.
+All the proofs provided by this library are constructed using the function `P<ValueType>(): Proof<ValueType>`. We can use `P` to construct are own proofs by providing a return type as the type argument.
 
 ```ts
 P.string = P<string>(x => typeof x === 'string' || 'Expected string')
 ```
 
-We can use `P` to construct are own proofs by providing are return type as the type argument to P. Here is a generic proof which does a deep equal comparison using lodash.isequal function.
+Here is a generic proof which does a deep equal comparison using lodash.isequal function.
 
 ```ts
 import P, { isFailure, Proof } from 'ts-prove'
@@ -94,61 +94,89 @@ import isEqual from 'lodash.isequal'
 const equalProof = <T extends any>(type: T) => P<T>((input) => isEqual(type, input) | `Not equal`)
 ```
 
-Under the hood `P` takes advantage of a type guard API also provided by this libarary
-
-```ts
-import { is } from 'ts-prove';
-
-is.string(10) // false
-
-const isPerson = is<Person>(x => x && x.name && x.name.first && x.age);
-isPerson({ name: { first: 'John' }, age: 42 }) // true
-```
-
 
 
 ## API
 
-#### Types
+#### Type definitions
 
 | Type      | Definition |
 | ---------- | ------------------------ |
-| Sucess<T>  | [null, T]                |
-|  Failure              | [string, unknown]        |
-| Check<T=unknown> | (x: T) => true \| string |
-| Proof<R> 		   | <T extends Check<R> \| R>(x: T): T extends Check<R> ? Proof<R> : Success<R> \| Failure |
-
-#### Proofs
-
-Every proof sites in the default export namespace.
-
-| Primitives | Type definition  |
-| ---------- | ---------------- |
-| string     | Proof<string>    |
-| number     | Proof<number>    |
-| boolean    | Proof<boolean>   |
-| symbol     | Proof<symbol>    |
-| undefined  | Proof<undefined> |
-
-| Structured                                                   | Type definition                                              |      |
-| ------------------------------------------------------------ | ------------------------------------------------------------ | ---- |
-| array                                                        | Proof<any[]>                                                 |      |
-| arrayOf                                                      | <T extends Proof<any>>(prf: T): Proof<TypeOfProof<T>[]>      |      |
-|                                                              | `P.arrayOf(P.string) // string[]`                            |      |
-| shape                                                        | <T extends { [x: string]: Proof<any> }>(prf: T): Proof<{ [Key in keyof T]: TypeOfProof<T[Key]> }> |      |
-|                                                              | `P.shape({ name: P.string }) // { name: string }`            |      |
-| optional *(For use in shapes to indicate an optional value)* | <T extends Proof<any>>(*prf*: T): Proof<TypeOfProof<T> \| undefined> |      |
-|                                                              | `P.shape({ name: P.optional(P.string) }) // { name?: string} ` |      |
-| or                                                           | <T extends Proof<any>[]>(...*proofs*: T): Proof<TypeOfProof<T[number]>> |      |
-|                                                              | `P.or(P.string, P.number) // string | number`                |      |
+| Sucess\<T> | [**null**, **T**]        |
+|  Failure              | [**string**, **unknown**] |
+| Check<**T**=*unknown*> | (value: **T**) => **true** \| **string** |
+| Proof\<**R**> | <T *extends **Check\<R>** \| **R***>(x: **T**): T extends Check\<R> ? **Proof\<R>** : **Success\<R>** \| **Failure** |
 
 
-#### Helpers
 
-- **isSuccess(x : Failure | Success<T>): boolean** 
-- **isFailure(x : Failure | Success<T>): boolean** 
-- **valid(x : Failure | Success<T>): boolean): string | true**
-- **result<T>(x: T, isValid: true | string): Failure | Success<T>**
+#### P: Proof
+
+Accepts a return type argument and a validation function that returns a failure of type string or boolean true.
+
+- **string:** Proof<*string*>
+- **number:** Proof<*number*>
+- **boolean:** Proof<*boolean*>
+- **symbol:** Proof<*symbol*>
+- **null:** Proof<*null*>
+- **undefined:** Proof<*undefined*>
+
+
+
+*Two utility proofs that always match but that resolve to different types.*
+
+- **any: ** Proof\<*any*\>
+- **unknown:** Proof\<*unknown*\>
+
+
+
+- **array:** <**T** *extends Proof\<any\>*>(proof: **T**): **Proof**<*TypeOfProof\<**T**\>**[]***>
+
+  - Accepts a proof T as an argument and returns a proof for arrays containing type T.
+
+  - ```ts
+    const names = P.array(P.string)
+    ```
+
+- **shape:** <**T** *extends { [x: string]: Proof\<any\> }*>(proof: **T**): **Proof**<*{ [Key in keyof **T**]: TypeOfProof<**T[Key]**> }*>
+
+  - Accepts a key value object where every value is a proof and returns a proof for objects of that shape.
+
+  - ```ts
+    const shapeProof = P.shape({ name: P.string, age: P.number })
+    ```
+
+- **optional:** <**T** *extends Proof\<any\>*>(proof: **T**): **Proof**<*TypeOfProof\<**T**\> | **undefined***>
+
+  - For use in shapes when you want the return type to indicate and optional value. Optional accepts a proof as an argument and returns union with undefined. For any other cases use **or**.
+
+  - ```ts
+    const person = P.shape({ name: P.string, age: P.optional(P.number) })
+    // { name: string, age?: number }
+    ```
+  
+- **or**: <**T** *extends Proof\<any\>[]*>(...proofs: **T**): **Proof**<*TypeOfProof\<**T[number]**\>*>
+
+  - Accepts any number of proofs as arguments and returns a union of thoses proofs if any one of them match a given value.
+
+  - ```ts
+    const someUnion = P.or(P.string, P.number, P.symbol)
+    // string | number | symbol
+```
+    
+
+
+
+#### Helper functions
+
+- **isProven**: \<**T** *extends any*>(**x** : Failure | Success\<**T**>): **x** is Success\<**T**>
+  - Type guard for the return type of a proof
+
+- **check:** (**proof**: Proof\<any>): Check\<*unknown*>
+  - Used to convert a proof to a check
+
+
+
+*Type guard library coming soon...*
 
 
 
