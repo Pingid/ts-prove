@@ -1,4 +1,4 @@
-import { outputString, is, isProven, failure, success, check } from './utils'
+import { outputString, is, isProved, failure, success, check } from './utils'
 import prove from './prove'
 
 const types = [
@@ -58,9 +58,9 @@ test('outputString', () => {
   expect(outputString({ one: 'fooobar' })).toBe(`{\n  one: fooobar\n}`)
 })
 
-test('isProven', () => {
-  expect(isProven(failure('', null))).toEqual(false)
-  expect(isProven(success(''))).toEqual(true)
+test('isProved', () => {
+  expect(isProved(failure('', null))).toEqual(false)
+  expect(isProved(success(''))).toEqual(true)
 })
 
 test('check', () => {

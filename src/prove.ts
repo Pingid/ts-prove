@@ -1,5 +1,5 @@
 import { Check, Value, Proof, ProofType, Valid, OptionalProp as Optional, Shape } from './types'
-import { is, outputString, hasResolved, isProven, check, result } from './utils'
+import { is, outputString, isResolved, isProved, check, result } from './utils'
 
 /**
  * Where the magic happens
@@ -33,7 +33,7 @@ prove.shape = <T extends Record<any, Proof<any>>>(shp: T) =>
     Object.keys(shp).reduce<Valid>((a, b) => {
       if (is.string(a)) return a
       const res = shp[b]((x as any)[b])
-      if (hasResolved(res) && !isProven(res)) return outputString({ ...(a as any)[1], [b]: res[0] })
+      if (isResolved(res) && !isProved(res)) return outputString({ ...(a as any)[1], [b]: res[0] })
       return true
     }, true)
   )
@@ -49,7 +49,7 @@ prove.array = <T extends Proof<any>>(arrayOf: T) =>
     y.reduce<Valid>((a, b, i) => {
       if (is.string(a)) return a
       const res = arrayOf(b)
-      if (hasResolved(res) && !isProven(res)) return `[ ([${i}] ${res[0]}) ]`
+      if (isResolved(res) && !isProved(res)) return `[ ([${i}] ${res[0]}) ]`
       return a
     }, true)
   )

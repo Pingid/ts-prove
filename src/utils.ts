@@ -23,10 +23,10 @@ is.shape = is<Record<string, any>>(
 export const success = <T extends any>(x: T): Success<T> => [null, x]
 export const failure = (err: string, x: unknown): Failure => [err, x]
 
-export const hasResolved = <T extends any>(x: ReturnType<Proof<T>>): x is Success<T> | Failure =>
+export const isResolved = <T extends any>(x: ReturnType<Proof<T>>): x is Success<T> | Failure =>
   is<Success<T>>((y) => !!(is.array(y) && (is.null(y[0]) || is.string(y[0]))))(x)
 
-export const isProven = <T extends any>(x: ReturnType<Proof<T>>): x is Success<T> =>
+export const isProved = <T extends any>(x: Success<T> | Failure): x is Success<T> =>
   is<Success<T>>((y) => !!(is.array(y) && y[0] === null))(x)
 
 export const check = <T extends Proof<any>>(prf: T) => (y: Value) => {

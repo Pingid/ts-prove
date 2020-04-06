@@ -51,9 +51,11 @@ provePerson({ name: { first: 'Bob' }, age: 10 }) // [null, Person]
 This could then be used to validate a payload.
 
 ```ts
+import { isProved } from 'ts-prove'
+
 export const createPerson = (req) => {
   const data = person(req.body)
-  if (isFailure(data)) return req.send({ status: 500, body: data[0] })
+  if (!isProved(data)) return req.send({ status: 500, body: data[0] })
   return db.createPerson(data[1])
 }
 
@@ -155,7 +157,7 @@ _Two utility proofs that always match but that resolve to different types._
 
 #### Helper functions
 
-- **isProven**: \<**T** _extends any_>(**x** : Failure | Success\<**T**>): **x** is Success\<**T**>
+- **isProved**: \<**T** _extends any_>(**x** : Failure | Success\<**T**>): **x** is Success\<**T**>
 
   - Type guard for the return type of a proof
 
