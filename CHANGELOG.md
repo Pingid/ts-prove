@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/Pingid/ts-prove/compare/v1.1.0...v1.1.1) (2020-04-06)
+
+
+### Bug Fixes
+
+* fix function exports ([966a86f](https://github.com/Pingid/ts-prove/commit/966a86f3a53dafdb933ba81ac5d7f999543b6278))
+
 # [1.1.0](https://github.com/Pingid/ts-prove/compare/v1.0.2...v1.1.0) (2020-04-04)
 
 
