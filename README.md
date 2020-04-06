@@ -29,7 +29,7 @@ yarn add ts-prove
 In the example below, we construct a _proof_ for the type `Person<{ name: { first: string, last: string }, age: number }>`. This proof is a callback which accepts some unknown data and returns either `Failure<[string, unknown]>` or `Success<[null, Person]>`
 
 ```ts
-import P, { TypeOfProof } from 'ts-prove'
+import P, { ProofType } from 'ts-prove'
 
 const proveName = P.shape({
   first: P.string,
@@ -41,7 +41,7 @@ const provePerson = P.shape({
   age: P.number,
 })
 
-type Person = TypeOfProof<typeof provePerson>
+type Person = ProofType<typeof provePerson>
 // { name: { first: string, last?: string }, age: number }
 
 provePerson({ name: { first: 'Bob' }, age: 'Incorect string value' }) // [string, unknown]
@@ -119,7 +119,7 @@ _Two utility proofs that always match but that resolve to different types._
 - **any:** Proof\<_any_\>
 - **unknown:** Proof\<_unknown_\>
 
-* **array:** <**T** _extends Proof\<any\>_>(proof: **T**): **Proof**<\*TypeOfProof\<**T**\>**[]\***>
+* **array:** <**T** _extends Proof\<any\>_>(proof: **T**): **Proof**<\*ProofType\<**T**\>**[]\***>
 
   - Accepts a proof T as an argument and returns a proof for arrays containing type T.
 
@@ -127,7 +127,7 @@ _Two utility proofs that always match but that resolve to different types._
     const names = P.array(P.string)
     ```
 
-* **shape:** <**T** _extends { [x: string]: Proof\<any\> }_>(proof: **T**): **Proof**<_{ [Key in keyof **T**]: TypeOfProof<**T[Key]**> }_>
+* **shape:** <**T** _extends { [x: string]: Proof\<any\> }_>(proof: **T**): **Proof**<_{ [Key in keyof **T**]: ProofType<**T[Key]**> }_>
 
   - Accepts a key value object where every value is a proof and returns a proof for objects of that shape.
 
@@ -135,7 +135,7 @@ _Two utility proofs that always match but that resolve to different types._
     const shapeProof = P.shape({ name: P.string, age: P.number })
     ```
 
-* **optional:** <**T** _extends Proof\<any\>_>(proof: **T**): **Proof**<\*TypeOfProof\<**T**\> | **undefined\***>
+* **optional:** <**T** _extends Proof\<any\>_>(proof: **T**): **Proof**<\*ProofType\<**T**\> | **undefined\***>
 
   - For use in shapes when you want the return type to indicate and optional value. Optional accepts a proof as an argument and returns union with undefined. For any other cases use **or**.
 
@@ -144,7 +144,7 @@ _Two utility proofs that always match but that resolve to different types._
     // { name: string, age?: number }
     ```
 
-* **or**: <**T** _extends Proof\<any\>[]_>(...proofs: **T**): **Proof**<_TypeOfProof\<**T[number]**\>_>
+* **or**: <**T** _extends Proof\<any\>[]_>(...proofs: **T**): **Proof**<_ProofType\<**T[number]**\>_>
 
   - Accepts any number of proofs as arguments and returns a union of thoses proofs if any one of them match a given value.
 

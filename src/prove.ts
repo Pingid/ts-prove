@@ -1,4 +1,4 @@
-import { Check, Value, Proof, TypeOfProof, Valid, OptionalProp as Optional, Shape } from './types'
+import { Check, Value, Proof, ProofType, Valid, OptionalProp as Optional, Shape } from './types'
 import { is, outputString, hasResolved, isProven, check, result } from './utils'
 
 /**
@@ -45,7 +45,7 @@ prove.optional = <T extends Proof<any>>(prf: T) =>
  * Structured array Proof
  */
 prove.array = <T extends Proof<any>>(arrayOf: T) =>
-  prove<TypeOfProof<T>[]>((x) => is.array(x) || 'Expected array')((y) =>
+  prove<ProofType<T>[]>((x) => is.array(x) || 'Expected array')((y) =>
     y.reduce<Valid>((a, b, i) => {
       if (is.string(a)) return a
       const res = arrayOf(b)
@@ -58,7 +58,7 @@ prove.array = <T extends Proof<any>>(arrayOf: T) =>
  * Logical proof which checks that item is one of some type
  */
 prove.or = <T extends Proof<any>[]>(...proofs: T) =>
-  prove<TypeOfProof<T[number]>>((value) =>
+  prove<ProofType<T[number]>>((value) =>
     proofs.reduce<Valid>((a, prf) => {
       if (a === true) return true
       const result = check(prf)(value)
